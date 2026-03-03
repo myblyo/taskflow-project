@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de tareas</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@100..900&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main>
+        <div class="sidebar-container">
+
+            <aside class="sidebar">
+                <section class="categories">
+                    <h2>Categorías</h2>
+                    <ul>
+                        <li class="work">Trabajo</li>
+                        <li class="study">Estudio</li>
+                        <li class="personal">Personal</li>
+                        <li class="other">Otros</li>
+                    </ul>
+                </section>
+
+                <section class="priority">
+                    <h2>Niveles de importancia</h2>
+                    <ul>
+                        <li class="high">Alto</li>
+                        <li class="medium">Medio</li>
+                        <li class="low">Bajo</li>
+                    </ul>
+                </section>
+            </aside>
+        </div>
+
+        <div class="main-content">
+            <header>
+            <h1>Lista de tareas</h1>
+            </header>
+            <section class="task-list"> <!--Sección para listar las tareas-->
+
+                <!--Cada tarea es un artículo con atributos de categoría e importancia-->
+                <article class="card-task" data-category="Trabajo" data-level="Alto">  <!-- data-category y data-level, para poder filtrar y ordenar (w/js) las tareas por categoría y nivel de importancia-->
+                    <h3 class="task-title">
+                        <label class="container-checkbox" for="task-1">
+                            <input type="checkbox" id="task-1">
+                            <span class="checkmark"></span>
+                            Tarea 1
+                        </label>
+                    </h3>
+
+                    <p class="description">Descripción de la tarea 1.</p>
+                    <p class="category">Categoría: Trabajo</p>
+                    <p class="level">Nivel de prioridad: Alto</p>
+                </article>
+
+                <article class="card-task" data-category="Estudio" data-level="Medio">
+                    <h3 class="task-title">
+                        <label class="container-checkbox" for="task-2">
+                            <input type="checkbox" id="task-2">
+                            <span class="checkmark"></span>
+                            Tarea 2
+                        </label>
+                    </h3>
+                    <p class="description">Descripción de la tarea 2.</p>
+                    <p class="category">Categoría: Estudio</p>
+                    <p class="level">Nivel de prioridad: Medio</p>
+                </article>
+
+                <article class="card-task" data-category="Personal" data-level="Bajo">
+                    <h3 class="task-title">
+                        <label class="container-checkbox" for="task-3">
+                            <input type="checkbox" id="task-3">
+                            <span class="checkmark"></span> <!--Checkbox para marcar la tarea como completada-->
+                            Tarea 3
+                        </label>
+                    </h3>
+                    <p class="description">Descripción de la tarea 3.</p>
+                    <p class="category">Categoría: Personal</p>
+                    <p class="level">Nivel de prioridad: Bajo</p>
+                </article>
+
+                <article class="card-task" data-category="Otros" data-level="Bajo">
+                    <h3 class="task-title">
+                        <label class="container-checkbox" for="task-4">
+                            <input type="checkbox" id="task-4">
+                            <span class="checkmark"></span>
+                            Tarea 4
+                        </label>
+                    </h3>
+                    <p class="description">Descripción de la tarea 4.</p>
+                    <p class="category">Categoría: Otros</p>
+                    <p class="level">Nivel de prioridad: Bajo</p>
+                </article>
+
+                <article class="card-task" data-category="Personal" data-level="Alto">
+                    <h3 class="task-title">
+                        <label class="container-checkbox" for="task-5">
+                            <input type="checkbox" id="task-5">
+                            <span class="checkmark"></span>
+                            Tarea 5
+                        </label>
+                    </h3>
+                    <p class="description">Descripción de la tarea 5.</p>
+                    <p class="category">Categoría: Personal</p>
+                    <p class="level">Nivel de prioridad: Alto</p>
+                </article>
+            </section>
+        </div>
+    </main>
+</body>
+

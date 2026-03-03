@@ -1,0 +1,273 @@
+:root{
+    /* Colors */
+    --color-primary: #f3f2f2;
+
+    --color-bg: #ffffff;
+    --color-text: #000000;
+
+    /* Font */
+    --font-family: 'Noto Sans Mono', monospace;
+
+    /* Spacing */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 12px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+
+    /* Border Radius */
+    --border-radius-sm: 8px;
+    --border-radius-md: 16px;
+    --border-radius-lg: 24px;
+}
+
+/* ======== ESTILO GENERAL ======== */
+body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-family);
+}
+
+.main {
+    display: flex;
+}
+/* ======== HEADER ======== */
+header {
+    align-items: left;
+    margin: 0 0 var(--spacing-lg) 0;
+}
+
+header h1 {
+    font-size: 2rem;
+    margin-left: 0; /* Alineación a la izquierda */
+}
+
+
+/* ======== SIDE BAR ======== */
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    height: 100vh;
+    width: 250px;
+    padding: var(--spacing-lg);
+    background-color: var(--color-primary);
+    color: var(--color-text);
+    box-sizing: border-box;
+}
+
+/* Colores para categorías */
+
+.work {
+    color: #ac0202;
+}
+
+.study {
+    color: #e3cc00;
+}
+
+.personal {
+    color: #3ea2ff;
+}
+
+other {
+    color: #c23eff;
+}
+
+/* Colores para niveles de prioridad */
+
+.high {
+    color: #ce0808;
+}
+.medium {
+    color: #cea608;
+}
+.low {
+    color: #00a444;
+}
+
+
+/* ======== MAIN CONTENT ======== */
+
+.main-content {
+    margin-left: 250px; /* Espacio para el sidebar */
+    padding: var(--spacing-lg);
+    box-sizing: border-box;
+}
+
+/* ======== TASK LIST ======== */
+
+.task-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+
+}
+
+/* ======== TÍTULO Y CHECK BAR ======== */
+.task-title {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-family: 'Noto Sans Mono', monospace;
+    font-weight: 700;
+}
+
+.container-checkbox {
+    display: inline-block;
+    position: relative;
+    height: 20px;
+}
+
+/* ======== CARD DESIGN======== */
+
+/* === TASK CARDS ===*/
+
+article {
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius-md);
+    background: #e0e0e0;
+}
+
+
+/* ==== PRIORITY===*/
+
+.card-task[data-level="Alto"] .level {
+    color: #ce0808;
+}
+.card-task[data-level="Medio"] .level {
+    color: #cea608;
+}
+
+.card-task[data-level="Bajo"] .level {
+    color: #00a444;
+}
+
+/* === CATEGORY === */
+
+.card-task{
+    position: relative;
+    overflow: hidden;
+    padding-left: 1.5rem; /* espacio para la barra de prioridad */
+    background-color: var(--color-primary); /* fondo neutro para que el gradiente destaque */
+}
+
+.card-task::after {
+    content: "";
+    position: absolute;
+    width: 0.50rem; /* ancho de la barra de prioridad */
+    inset: 0.80rem 0.45rem 0.80rem; /* espacio desde arriba y abajo, y alineado a la izquierda */
+    border-radius: var(--border-radius-md);
+    background: var(--gradient); /* usa el gradiente definido o transparente por defecto */
+    transition: transform 0.3s ease; /* transición suave para cambios de prioridad */
+}
+
+.card-task::hover::after {
+    transform: translateX(1.5rem); /* efecto de hover para destacar la barra de prioridad */
+}
+
+.card-task[data-category="Trabajo"] {
+    --gradient: linear-gradient(to bottom, #ff3e3e, #bc1414);
+}
+
+.card-task[data-category="Personal"] {
+    --gradient: linear-gradient(to bottom, #3ea2ff, #1454bc);
+}
+
+.card-task[data-category="Otros"] {
+    --gradient: linear-gradient(to bottom, #c23eff, #8414bc);
+}
+
+.card-task[data-category="Estudio"] {
+    --gradient: linear-gradient(to bottom, #ffec3e, #bca614);
+}
+
+/* ======== MEDIA QUERIES PARA RESPONSIVE ======== */
+
+/* ===============================
+   MEDIA QUERIES
+   =============================== */
+
+/* Tablets y pantallas medianas */
+@media (max-width: 1024px) {
+    article{
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .main-content {
+        margin-left: 250px; /* aún espacio para sidebar */
+        padding: var(--spacing-md);
+    }
+
+    .card-task {
+        padding: var(--spacing-md);
+        padding-left: 1.5rem;
+    }
+}
+
+/* Móviles y pantallas pequeñas */
+@media (max-width: 768px) {
+    .main {
+        flex-direction: column; /* apilar verticalmente */
+    }
+
+    .sidebar {
+        position: relative; /* ya no fijo */
+        width: 100%;
+        height: auto;
+        margin-bottom: var(--spacing-lg);
+    }
+
+    .main-content {
+        margin-left: 0; /* contenido ocupa todo el ancho */
+        padding: var(--spacing-md);
+    }
+
+    article {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .card-task {
+        padding: var(--spacing-md);
+        padding-left: 1.5rem;
+    }
+
+    .task-list {
+        gap: var(--spacing-sm);
+    }
+
+    header h1 {
+        font-size: 1.5rem;
+        margin-left: 0;   /* Alineado con las tarjetas cuando sidebar no es fijo */
+    }
+
+    .task-title {
+        font-size: 1rem;
+    }
+}
+
+/* Móviles muy pequeños */
+@media (max-width: 480px) {
+    header h1 {
+        font-size: 1.2rem;
+    }
+
+    .task-title {
+        font-size: 0.9rem;
+    }
+
+    .card-task {
+        padding: var(--spacing-sm);
+        padding-left: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    header h1 {
+        font-size: 1.5rem;
+        margin-left: 0;   /* Alineado con las tarjetas cuando sidebar no es fijo */
+    }
+}
