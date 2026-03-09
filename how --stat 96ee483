@@ -1,0 +1,299 @@
+[33mcommit 96ee483f0cdd8adee0147f6f41f5286fc5c290be[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m
+Author: Myls Blanza <mylsblanza290@gmail.com>
+Date:   Mon Mar 9 15:31:06 2026 +0100
+
+    Estructura HTML
+
+[1mdiff --git a/index.html b/index.html[m
+[1mindex c69a83b..85386a1 100644[m
+[1m--- a/index.html[m
+[1m+++ b/index.html[m
+[36m@@ -1,220 +1,80 @@[m
+ <!DOCTYPE html>[m
+ <html lang="es">[m
+ <head>[m
+[31m-    <meta charset="UTF-8">[m
+[31m-    <meta name="viewport" content="width=device-width, initial-scale=1.0">[m
+[31m-    <title>Lista de tareas</title>[m
+[31m-    <link rel="preconnect" href="https://fonts.googleapis.com">[m
+[31m-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>[m
+[31m-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@100..900&display=swap" rel="stylesheet">[m
+[31m-    <link rel="stylesheet" href="style.css">[m
+[32m+[m[32m<meta charset="UTF-8">[m
+[32m+[m[32m<meta name="viewport" content="width=device-width, initial-scale=1.0">[m
+[32m+[m[32m<title>Lista de tareas</title>[m
+[32m+[m[32m<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@400;600;700&display=swap" rel="stylesheet">[m
+[32m+[m[32m<style>[m
+[32m+[m[32m    @import url("Componentes/style.css");[m
+[32m+[m[32m</style>[m
+ </head>[m
+ <body>[m
+[31m-<main>[m
+[31m-    <div class="sidebar-container">[m
+[31m-        <aside class="sidebar">[m
+[31m-[m
+[31m-        <h2>Filtros</h2>[m
+[31m-[m
+[31m-        <button id="boton">Borrar filtros</button>[m
+[31m-[m
+[31m-        <div class="glass-radio-group">[m
+[31m-            <input type="radio" name="plan" id="glass-silver" checked="" />[m
+[31m-            <label for="glass-silver">Silver</label>[m
+[31m-[m
+[31m-            <input type="radio" name="plan" id="glass-gold" />[m
+[31m-            <label for="glass-gold">Gold</label>[m
+[31m-[m
+[31m-            <input type="radio" name="plan" id="glass-platinum" />[m
+[31m-            <label for="glass-platinum">Platinum</label>[m
+[31m-[m
+[31m-            <div class="glass-glider"></div>[m
+[31m-        </div>[m
+[31m-[m
+[31m-[m
+[31m-        <section class="categories">[m
+[31m-            <details open>[m
+[31m-                <summary>Categorías</summary>[m
+[31m-                    <div class="checkbox-wrapper">[m
+[31m-                        <input class="inp-cbx" id="work" type="checkbox">[m
+[31m-                        <label class="cbx" for="work">[m
+[31m-                            <span>[m
+[31m-                                <svg width="12px" height="10px">[m
+[31m-                                    <use xlink:href="#check"></use>[m
+[31m-                                </svg>[m
+[31m-                            </span>[m
+[31m-                            <span>Trabajo</span>[m
+[31m-                        </label>[m
+[31m-                    </div>[m
+[31m-[m
+[31m-                    <div class="checkbox-wrapper">[m
+[31m-                        <input class="inp-cbx" id="study" type="checkbox">[m
+[31m-                        <label class="cbx" for="study">[m
+[31m-                            <span>[m
+[31m-                                <svg width="12px" height="10px">[m
+[31m-                                    <use xlink:href="#check"></use>[m
+[31m-                                </svg>[m
+[31m-                            </span>[m
+[31m-                            <span>Estudio</span>[m
+[31m-                        </label>[m
+[31m-                    </div>[m
+[31m-[m
+[31m-                    <div class="checkbox-wrapper">[m
+[31m-                        <input class="inp-cbx" id="personal" type="checkbox">[m
+[31m-                        <label class="cbx" for="personal">[m
+[31m-                            <span>[m
+[31m-                                <svg width="12px" height="10px">[m
+[31m-                                    <use xlink:href="#check"></use>[m
+[31m-                                </svg>[m
+[31m-                            </span>[m
+[31m-                            <span>Personal</span>[m
+[31m-                        </label>[m
+[31m-                    </div>[m
+[31m-[m
+[31m-                    <div class="checkbox-wrapper">[m
+[31m-                        <input class="inp-cbx" id="other" type="checkbox">[m
+[31m-                        <label class="cbx" for="other">[m
+[31m-                            <span>[m
+[31m-                                <svg width="12px" height="10px">[m
+[31m-                                    <use xlink:href="#check"></use>[m
+[31m-                                </svg>[m
+[31m-                            </span>[m
+[31m-                            <span>Otros</span>[m
+[31m-                        </label>[m
+[31m-                    </div>[m
+[31m-            </details>[m
+[31m-        </section>[m
+[31m-[m
+[31m-        <section class="priority">[m
+[31m-            <div id="priority-list">[m
+[31m-                <details>[m
+[31m-                    <summary>Prioridad </summary>[m
+[31m-                    <div class="checkbox-wrapper">[m
+[31m-                        <input class="inp-cbx" id="high" type="checkbox">[m
+[31m-                        <label class="cbx" for="high">[m
+[31m-                            <span>[m
+[31m-                                <svg width="12px" height="10px">[m
+[31m-                                    <use xlink:href="#check"></use>[m
+[31m-                                </svg>[m
+[31m-                            </span>[m
+[31m-                            <span>Alto</span>[m
+[31m-                        </label>[m
+[31m-                    </div>[m
+ [m
+[31m-                    <div class="checkbox-wrapper">[m
+[31m-                        <input class="inp-cbx" id="medium" type="checkbox">[m
+[31m-                        <label class="cbx" for="medium">[m
+[31m-                            <span>[m
+[31m-                                <svg width="12px" height="10px">[m
+[31m-                                    <use xlink:href="#check"></use>[m
+[31m-                                </svg>[m
+[31m-                            </span>[m
+[31m-                            <span>Medio</span>[m
+[31m-                        </label>[m
+[31m-                    </div>[m
+[31m-[m
+[31m-                    <div class="checkbox-wrapper">[m
+[31m-                        <input class="inp-cbx" id="low" type="checkbox">[m
+[31m-                        <label class="cbx" for="low">[m
+[31m-                            <span>[m
+[31m-                                <svg width="12px" height="10px">[m
+[31m-                                    <use xlink:href="#check"></use>[m
+[31m-                                </svg>[m
+[31m-                            </span>[m
+[31m-                            <span>Bajo</span>[m
+[31m-                        </label>[m
+[31m-                    </div>[m
+[31m-        </section>[m
+[31m-[m
+[31m-[m
+[31m-[m
+[31m-    <!-- SVG symbol compartido por todos los checkboxes -->[m
+[31m-    <svg class="inline-svg" xmlns="http://www.w3.org/2000/svg">[m
+[31m-        <symbol id="check" viewBox="0 0 12 10">[m
+[31m-            <polyline points="1.5 6 4.5 9 10.5 1"></polyline>[m
+[31m-        </symbol>[m
+[31m-    </svg>[m
+[31m-[m
+[31m-</aside>[m
+[31m-    </div>[m
+[31m-[m
+[31m-    <div class="main-content">[m
+[31m-        <header>[m
+[32m+[m[32m<main>[m
+[32m+[m[32m    <!-- Sidebar -->[m
+[32m+[m[32m    <aside class="glass">[m
+[32m+[m[32m        <button id="resetBtn">🗑 filtros</button>[m
+[32m+[m
+[32m+[m[32m        <details open>[m
+[32m+[m[32m            <summary>Categorías</summary>[m
+[32m+[m[32m            <label class="checkbox-label"><input type="checkbox" class="checkbox f-cat" value="Trabajo"> Trabajo</label>[m
+[32m+[m[32m            <label class="checkbox-label"><input type="checkbox" class="checkbox f-cat" value="Estudio"> Estudio</label>[m
+[32m+[m[32m            <label class="checkbox-label"><input type="checkbox" class="checkbox f-cat" value="Personal"> Personal</label>[m
+[32m+[m[32m            <label class="checkbox-label"><input type="checkbox" class="checkbox f-cat" value="Otro"> Otro</label>[m
+[32m+[m[32m        </details>[m
+[32m+[m
+[32m+[m[32m        <details open>[m
+[32m+[m[32m            <summary>Prioridad</summary>[m
+[32m+[m[32m            <label class="checkbox-label"><input type="checkbox" class="checkbox f-pri" value="Alto"> Alto</label>[m
+[32m+[m[32m            <label class="checkbox-label"><input type="checkbox" class="checkbox f-pri" value="Medio"> Medio</label>[m
+[32m+[m[32m            <label class="checkbox-label"><input type="checkbox" class="checkbox f-pri" value="Bajo"> Bajo</label>[m
+[32m+[m[32m        </details>[m
+[32m+[m
+[32m+[m[32m        <details open>[m
+[32m+[m[32m            <summary>Estado</summary>[m
+[32m+[m[32m            <label class="checkbox-label"><input type="checkbox" class="checkbox f-sta" value="Pendiente"> Pendiente</label>[m
+[32m+[m[32m            <label class="checkbox-label"><input type="checkbox" class="checkbox f-sta" value="En progreso"> En progreso</label>[m
+[32m+[m[32m            <label class="checkbox-label"><input type="checkbox" class="checkbox f-sta" value="Completada"> Completada</label>[m
+[32m+[m[32m        </details>[m
+[32m+[m[32m    </aside>[m
+[32m+[m
+[32m+[m[32m    <!-- Content -->[m
+[32m+[m[32m    <div class="content">[m
+[32m+[m[32m        <div style="display:flex; align-items:center; justify-content:space-between;">[m
+             <h1>Lista de tareas</h1>[m
+[31m-        </header>[m
+[31m-[m
+[31m-        <section class="task-list">[m
+[31m-            <article class="card-task" data-category="Trabajo" data-level="Alto">[m
+[31m-                <h3 class="task-title">[m
+[31m-                    <label class="container-checkbox" for="task-1">[m
+[31m-                        <input type="checkbox" id="task-1">[m
+[31m-                        <span class="checkmark"></span>[m
+[31m-                        Tarea 1[m
+[31m-                    </label>[m
+[31m-                </h3>[m
+[31m-                <p class="description">Descripción de la tarea 1.</p>[m
+[31m-                <p class="category">Categoría: Trabajo</p>[m
+[31m-                <p class="level">Nivel de prioridad: Alto</p>[m
+[31m-            </article>[m
+[31m-[m
+[31m-            <article class="card-task" data-category="Estudio" data-level="Medio">[m
+[31m-                <h3 class="task-title">[m
+[31m-                    <label class="container-checkbox" for="task-2">[m
+[31m-                        <input type="checkbox" id="task-2">[m
+[31m-                        <span class="checkmark"></span>[m
+[31m-                        Tarea 2[m
+[31m-                    </label>[m
+[31m-                </h3>[m
+[31m-                <p class="description">Descripción de la tarea 2.</p>[m
+[31m-                <p class="category">Categoría: Estudio</p>[m
+[31m-                <p class="level">Nivel de prioridad: Medio</p>[m
+[31m-            </article>[m
+[31m-[m
+[31m-            <article class="card-task" data-category="Personal" data-level="Bajo">[m
+[31m-                <h3 class="task-title">[m
+[31m-                    <label class="container-checkbox" for="task-3">[m
+[31m-                        <input type="checkbox" id="task-3">[m
+[31m-                        <span class="checkmark"></span>[m
+[31m-                        Tarea 3[m
+[31m-                    </label>[m
+[31m-                </h3>[m
+[31m-                <p class="description">Descripción de la tarea 3.</p>[m
+[31m-                <p class="category">Categoría: Personal</p>[m
+[31m-                <p class="level">Nivel de prioridad: Bajo</p>[m
+[31m-            </article>[m
+[32m+[m[32m            <input class="theme-checkbox" type="checkbox" id="darkToggle" />[m
+[32m+[m[32m        </div>[m
+ [m
+[31m-            <article class="card-task" data-category="Otros" data-level="Bajo">[m
+[31m-                <h3 class="task-title">[m
+[31m-                    <label class="container-checkbox" for="task-4">[m
+[31m-                        <input type="checkbox" id="task-4">[m
+[31m-                        <span class="checkmark"></span>[m
+[31m-                        Tarea 4[m
+[31m-                    </label>[m
+[31m-                </h3>[m
+[31m-                <p class="description">Descripción de la tarea 4.</p>[m
+[31m-                <p class="category">Categoría: Otros</p>[m
+[31m-                <p class="level">Nivel de prioridad: Bajo</p>[m
+[31m-            </article>[m
+ [m
+[31m-            <article class="card-task" data-category="Personal" data-level="Alto">[m
+[31m-                <h3 class="task-title">[m
+[31m-                    <label class="container-checkbox" for="task-5">[m
+[31m-                        <input type="checkbox" id="task-5">[m
+[31m-                        <span class="checkmark"></span>[m
+[31m-                        Tarea 5[m
+[31m-                    </label>[m
+[31m-                </h3>[m
+[31m-                <p class="description">Descripción de la tarea 5.</p>[m
+[31m-                <p class="category">Categoría: Personal</p>[m
+[31m-                <p class="level">Nivel de prioridad: Alto</p>[m
+[31m-            </article>[m
+[31m-        </section>[m
+[32m+[m[32m        <form class="glass" id="task-form">[m
+[32m+[m[32m            <div class="row">[m
+[32m+[m[32m                <input type="text" id="task-title" placeholder="Título de la tarea" class="flex-1" required>[m
+[32m+[m[32m                <select id="category-select" required>[m
+[32m+[m[32m                    <option value="" disabled selected>Categoría</option>[m
+[32m+[m[32m                    <option value="Trabajo">Trabajo</option>[m
+[32m+[m[32m                    <option value="Estudio">Estudio</option>[m
+[32m+[m[32m                    <option value="Personal">Personal</option>[m
+[32m+[m[32m                    <option value="Otro">Otro</option>[m
+[32m+[m[32m                </select>[m
+[32m+[m[32m                <select id="priority-select" required>[m
+[32m+[m[32m                    <option value="" disabled selected>Prioridad</option>[m
+[32m+[m[32m                    <option value="Alto">Alto</option>[m
+[32m+[m[32m                    <option value="Medio">Medio</option>[m
+[32m+[m[32m                    <option value="Bajo">Bajo</option>[m
+[32m+[m[32m                </select>[m
+[32m+[m[32m            </div>[m
+[32m+[m[32m            <div class="row">[m
+[32m+[m[32m                <input type="text" id="task-desc" placeholder="Descripción (opcional)" class="flex-1">[m
+[32m+[m[32m                <input type="date" id="task-date" required>[m
+[32m+[m[32m                <button type="submit">+ Agregar tarea</button>[m
+[32m+[m[32m            </div>[m
+[32m+[m[32m        </form>[m
+[32m+[m
+[32m+[m[32m        <div id="task-list"></div>[m
+     </div>[m
+[31m-[m
+[31m-    <button class="Btn">[m
+[31m-        <div class="sign">+</div>[m
+[31m-        <div class="text">Create</div>[m
+[31m-    </button>[m
+ </main>[m
+[32m+[m
+[32m+[m[32m<script src="app.js"></script>[m
+ </body>[m
+ </html>[m
+\ No newline at end of file[m
