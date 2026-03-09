@@ -1,220 +1,80 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista de tareas</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@100..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lista de tareas</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+    @import url("Componentes/style.css");
+</style>
 </head>
 <body>
+
 <main>
-    <div class="sidebar-container">
-        <aside class="sidebar">
+    <!-- Sidebar -->
+    <aside class="glass">
+        <button id="resetBtn">🗑 filtros</button>
 
-        <h2>Filtros</h2>
+        <details open>
+            <summary>Categorías</summary>
+            <label class="checkbox-label"><input type="checkbox" class="checkbox f-cat" value="Trabajo"> Trabajo</label>
+            <label class="checkbox-label"><input type="checkbox" class="checkbox f-cat" value="Estudio"> Estudio</label>
+            <label class="checkbox-label"><input type="checkbox" class="checkbox f-cat" value="Personal"> Personal</label>
+            <label class="checkbox-label"><input type="checkbox" class="checkbox f-cat" value="Otro"> Otro</label>
+        </details>
 
-        <button id="boton">Borrar filtros</button>
+        <details open>
+            <summary>Prioridad</summary>
+            <label class="checkbox-label"><input type="checkbox" class="checkbox f-pri" value="Alto"> Alto</label>
+            <label class="checkbox-label"><input type="checkbox" class="checkbox f-pri" value="Medio"> Medio</label>
+            <label class="checkbox-label"><input type="checkbox" class="checkbox f-pri" value="Bajo"> Bajo</label>
+        </details>
 
-        <div class="glass-radio-group">
-            <input type="radio" name="plan" id="glass-silver" checked="" />
-            <label for="glass-silver">Silver</label>
+        <details open>
+            <summary>Estado</summary>
+            <label class="checkbox-label"><input type="checkbox" class="checkbox f-sta" value="Pendiente"> Pendiente</label>
+            <label class="checkbox-label"><input type="checkbox" class="checkbox f-sta" value="En progreso"> En progreso</label>
+            <label class="checkbox-label"><input type="checkbox" class="checkbox f-sta" value="Completada"> Completada</label>
+        </details>
+    </aside>
 
-            <input type="radio" name="plan" id="glass-gold" />
-            <label for="glass-gold">Gold</label>
-
-            <input type="radio" name="plan" id="glass-platinum" />
-            <label for="glass-platinum">Platinum</label>
-
-            <div class="glass-glider"></div>
+    <!-- Content -->
+    <div class="content">
+        <div style="display:flex; align-items:center; justify-content:space-between;">
+            <h1>Lista de tareas</h1>
+            <input class="theme-checkbox" type="checkbox" id="darkToggle" />
         </div>
 
 
-        <section class="categories">
-            <details open>
-                <summary>Categorías</summary>
-                    <div class="checkbox-wrapper">
-                        <input class="inp-cbx" id="work" type="checkbox">
-                        <label class="cbx" for="work">
-                            <span>
-                                <svg width="12px" height="10px">
-                                    <use xlink:href="#check"></use>
-                                </svg>
-                            </span>
-                            <span>Trabajo</span>
-                        </label>
-                    </div>
+        <form class="glass" id="task-form">
+            <div class="row">
+                <input type="text" id="task-title" placeholder="Título de la tarea" class="flex-1" required>
+                <select id="category-select" required>
+                    <option value="" disabled selected>Categoría</option>
+                    <option value="Trabajo">Trabajo</option>
+                    <option value="Estudio">Estudio</option>
+                    <option value="Personal">Personal</option>
+                    <option value="Otro">Otro</option>
+                </select>
+                <select id="priority-select" required>
+                    <option value="" disabled selected>Prioridad</option>
+                    <option value="Alto">Alto</option>
+                    <option value="Medio">Medio</option>
+                    <option value="Bajo">Bajo</option>
+                </select>
+            </div>
+            <div class="row">
+                <input type="text" id="task-desc" placeholder="Descripción (opcional)" class="flex-1">
+                <input type="date" id="task-date" required>
+                <button type="submit">+ Agregar tarea</button>
+            </div>
+        </form>
 
-                    <div class="checkbox-wrapper">
-                        <input class="inp-cbx" id="study" type="checkbox">
-                        <label class="cbx" for="study">
-                            <span>
-                                <svg width="12px" height="10px">
-                                    <use xlink:href="#check"></use>
-                                </svg>
-                            </span>
-                            <span>Estudio</span>
-                        </label>
-                    </div>
-
-                    <div class="checkbox-wrapper">
-                        <input class="inp-cbx" id="personal" type="checkbox">
-                        <label class="cbx" for="personal">
-                            <span>
-                                <svg width="12px" height="10px">
-                                    <use xlink:href="#check"></use>
-                                </svg>
-                            </span>
-                            <span>Personal</span>
-                        </label>
-                    </div>
-
-                    <div class="checkbox-wrapper">
-                        <input class="inp-cbx" id="other" type="checkbox">
-                        <label class="cbx" for="other">
-                            <span>
-                                <svg width="12px" height="10px">
-                                    <use xlink:href="#check"></use>
-                                </svg>
-                            </span>
-                            <span>Otros</span>
-                        </label>
-                    </div>
-            </details>
-        </section>
-
-        <section class="priority">
-            <div id="priority-list">
-                <details>
-                    <summary>Prioridad </summary>
-                    <div class="checkbox-wrapper">
-                        <input class="inp-cbx" id="high" type="checkbox">
-                        <label class="cbx" for="high">
-                            <span>
-                                <svg width="12px" height="10px">
-                                    <use xlink:href="#check"></use>
-                                </svg>
-                            </span>
-                            <span>Alto</span>
-                        </label>
-                    </div>
-
-                    <div class="checkbox-wrapper">
-                        <input class="inp-cbx" id="medium" type="checkbox">
-                        <label class="cbx" for="medium">
-                            <span>
-                                <svg width="12px" height="10px">
-                                    <use xlink:href="#check"></use>
-                                </svg>
-                            </span>
-                            <span>Medio</span>
-                        </label>
-                    </div>
-
-                    <div class="checkbox-wrapper">
-                        <input class="inp-cbx" id="low" type="checkbox">
-                        <label class="cbx" for="low">
-                            <span>
-                                <svg width="12px" height="10px">
-                                    <use xlink:href="#check"></use>
-                                </svg>
-                            </span>
-                            <span>Bajo</span>
-                        </label>
-                    </div>
-        </section>
-
-
-
-    <!-- SVG symbol compartido por todos los checkboxes -->
-    <svg class="inline-svg" xmlns="http://www.w3.org/2000/svg">
-        <symbol id="check" viewBox="0 0 12 10">
-            <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
-        </symbol>
-    </svg>
-
-</aside>
+        <div id="task-list"></div>
     </div>
-
-    <div class="main-content">
-        <header>
-            <h1>Lista de tareas</h1>
-        </header>
-
-        <section class="task-list">
-            <article class="card-task" data-category="Trabajo" data-level="Alto">
-                <h3 class="task-title">
-                    <label class="container-checkbox" for="task-1">
-                        <input type="checkbox" id="task-1">
-                        <span class="checkmark"></span>
-                        Tarea 1
-                    </label>
-                </h3>
-                <p class="description">Descripción de la tarea 1.</p>
-                <p class="category">Categoría: Trabajo</p>
-                <p class="level">Nivel de prioridad: Alto</p>
-            </article>
-
-            <article class="card-task" data-category="Estudio" data-level="Medio">
-                <h3 class="task-title">
-                    <label class="container-checkbox" for="task-2">
-                        <input type="checkbox" id="task-2">
-                        <span class="checkmark"></span>
-                        Tarea 2
-                    </label>
-                </h3>
-                <p class="description">Descripción de la tarea 2.</p>
-                <p class="category">Categoría: Estudio</p>
-                <p class="level">Nivel de prioridad: Medio</p>
-            </article>
-
-            <article class="card-task" data-category="Personal" data-level="Bajo">
-                <h3 class="task-title">
-                    <label class="container-checkbox" for="task-3">
-                        <input type="checkbox" id="task-3">
-                        <span class="checkmark"></span>
-                        Tarea 3
-                    </label>
-                </h3>
-                <p class="description">Descripción de la tarea 3.</p>
-                <p class="category">Categoría: Personal</p>
-                <p class="level">Nivel de prioridad: Bajo</p>
-            </article>
-
-            <article class="card-task" data-category="Otros" data-level="Bajo">
-                <h3 class="task-title">
-                    <label class="container-checkbox" for="task-4">
-                        <input type="checkbox" id="task-4">
-                        <span class="checkmark"></span>
-                        Tarea 4
-                    </label>
-                </h3>
-                <p class="description">Descripción de la tarea 4.</p>
-                <p class="category">Categoría: Otros</p>
-                <p class="level">Nivel de prioridad: Bajo</p>
-            </article>
-
-            <article class="card-task" data-category="Personal" data-level="Alto">
-                <h3 class="task-title">
-                    <label class="container-checkbox" for="task-5">
-                        <input type="checkbox" id="task-5">
-                        <span class="checkmark"></span>
-                        Tarea 5
-                    </label>
-                </h3>
-                <p class="description">Descripción de la tarea 5.</p>
-                <p class="category">Categoría: Personal</p>
-                <p class="level">Nivel de prioridad: Alto</p>
-            </article>
-        </section>
-    </div>
-
-    <button class="Btn">
-        <div class="sign">+</div>
-        <div class="text">Create</div>
-    </button>
 </main>
+
+<script src="app.js"></script>
 </body>
 </html>
