@@ -1,0 +1,55 @@
+/* ── Checkboxes ── */
+.checkbox {
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    border: 2px solid var(--chk-color, #5e5e5e);
+    border-radius: 5px;
+    background-color: transparent;
+    display: inline-block;
+    position: relative;
+    margin-right: 10px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+.checkbox:before {
+    content: "";
+    background-color: var(--chk-color, #4e4e4e);
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    width: 5px;
+    height: 5px;
+    border-radius: 5px;
+    transition: all 0.3s ease-in-out;
+}
+.checkbox:checked:before {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.checkbox-label {
+    font-size: 0.8rem;
+    color: rgba(30, 35, 50, 0.70);
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    padding: 2px ;
+    transition: color 0.2s;
+}
+.checkbox-label:hover { color: rgba(15, 17, 25, 1); }
+html.dark .checkbox-label { color: rgba(215, 218, 240, 0.65); }
+html.dark .checkbox-label:hover { color: #fff; }
+
+/* Category colors */
+.checkbox[value="Trabajo"]  { --chk-color: #d88c9a; }
+.checkbox[value="Estudio"]  { --chk-color: #f2d0a9; }
+.checkbox[value="Personal"] { --chk-color: #8e7dbe; }
+.checkbox[value="Otro"]     { --chk-color: #99c1b9; }
+
+/* Priority colors */
+.checkbox[value="Alto"]  { --chk-color: #b23a48; }
+.checkbox[value="Medio"] { --chk-color: #f4d58d; }
+.checkbox[value="Bajo"]  { --chk-color: #708d81; }

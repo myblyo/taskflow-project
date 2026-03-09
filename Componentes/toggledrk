@@ -1,0 +1,12 @@
+/* Dark toggle */
+.toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 0.5rem;
+    font-size: 0.75rem;
+    color: rgba(30,35,50,0.45);
+}
+html.dark .toggle-row { color: rgba(220,225,255,0.4); }
+#darkToggle { accent-color: #636363; width: 16px; height: 16px; cursor: pointer; }

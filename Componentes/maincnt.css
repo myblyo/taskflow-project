@@ -1,0 +1,17 @@
+
+/* ── Main content ── */
+.content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+h1 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: rgba(20,24,38,0.88);
+    transition: color 0.3s;
+}
+html.dark h1 { color: rgba(230,232,255,0.95); }

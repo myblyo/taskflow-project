@@ -1,0 +1,19 @@
+/* Reset button */
+#resetBtn {
+    font-family: inherit;
+    font-size: 0.75rem;
+    font-weight: 600;
+    height: 36px;
+    padding: 0 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.45);
+    background: rgba(255,255,255,0.22);
+    backdrop-filter: blur(8px);
+    color: rgba(30,35,50,0.75);
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    white-space: nowrap;
+}
+#resetBtn:hover { background: rgba(255,255,255,0.5); color: #111; }
+html.dark #resetBtn { color: rgba(220,225,255,0.7); }
+html.dark #resetBtn:hover { background: rgba(255,255,255,0.15); color: #fff; }

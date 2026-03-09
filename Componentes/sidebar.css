@@ -1,0 +1,32 @@
+/* ── Sidebar ── */
+aside {
+    width: 210px;
+    flex-shrink: 0;
+    padding: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    position: sticky;
+    top: 1.5rem;
+}
+
+aside summary {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: rgba(30,35,50,0.55);
+    cursor: pointer;
+    list-style: none;
+    margin-bottom: 6px;
+    transition: color 0.2s;
+}
+aside summary:hover { color: rgba(15,17,25,1); }
+html.dark aside summary { color: rgba(220,225,255,0.55); }
+html.dark aside summary:hover { color: #fff; }
+
+aside details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}

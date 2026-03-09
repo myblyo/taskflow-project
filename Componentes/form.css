@@ -1,0 +1,57 @@
+/* ── Form ── */
+form { display: flex; flex-direction: column; gap: 0.6rem; padding: 1.2rem; }
+
+.row { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+
+input[type="text"],
+input[type="date"],
+select {
+    font-family: inherit;
+    font-size: 0.8rem;
+    height: 40px;
+    padding: 0 1rem;
+    border-radius: 999px;
+    border: 1.5px solid rgba(255,255,255,0.50);
+    background: rgba(255,255,255,0.25);
+    backdrop-filter: blur(10px);
+    color: rgba(20,22,35,0.9);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.3s;
+}
+input[type="text"]:focus,
+input[type="date"]:focus,
+select:focus {
+    border-color: rgba(100,120,200,0.6);
+    box-shadow: 0 0 0 3px rgba(100,120,200,0.12);
+}
+input::placeholder { color: rgba(80,90,110,0.45); }
+html.dark input[type="text"],
+html.dark input[type="date"],
+html.dark select {
+    background: rgba(220,220,235,0.10);
+    border-color: rgba(255,255,255,0.18);
+    color: rgba(235,235,245,0.92);
+}
+html.dark input::placeholder { color: rgba(200,200,220,0.38); }
+select option { background: #e8eaf0; color: #1a1c24; }
+html.dark select option { background: #2c2c3a; color: #e8e8f0; }
+
+.flex-1 { flex: 1; min-width: 120px; }
+
+button[type="submit"] {
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 700;
+    height: 40px;
+    padding: 0 1.4rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.815);
+    background: rgba(255, 255, 255, 0.267);
+    backdrop-filter: blur(10px);
+    color: #202020;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s, transform 0.1s;
+}
+button[type="submit"]:hover { background: rgba(255, 255, 255, 0.65); }
+button[type="submit"]:active { transform: scale(0.97); }

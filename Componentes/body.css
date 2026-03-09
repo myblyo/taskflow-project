@@ -1,0 +1,42 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+    min-height: 100vh;
+    font-family: 'Noto Sans Mono', monospace;
+}
+
+body {
+    padding: 1.5rem;
+    background-color: #dde1e8;
+    background-image:
+        radial-gradient(#9099aa 5%, transparent 5%),
+        radial-gradient(#9099aa 5%, transparent 5%);
+    background-size: 100px 100px;
+    background-position: 0 0, 50px 50px;
+    transition: background-color 0.4s;
+}
+
+html.dark body {
+    background-color: #0e0e0e;
+    background-image:
+        radial-gradient(#2a2a2a 5%, transparent 5%),
+        radial-gradient(#2a2a2a 5%, transparent 5%);
+}
+
+
+
+
+
+
+
+
+/* ── Task list ── */
+#task-list { display: flex; flex-direction: column; gap: 0.75rem; }
+
+
+/* ── Animations ── */
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.card-task { animation: slideIn 0.25s ease; }

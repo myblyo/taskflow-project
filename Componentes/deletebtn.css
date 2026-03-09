@@ -1,0 +1,18 @@
+
+.delete-btn {
+    font-family: inherit;
+    font-size: 0.72rem;
+    font-weight: 600;
+    height: 26px;
+    padding: 0 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(196, 196, 196, 0.28);
+    background: rgba(236, 236, 236, 0.12);
+    color: #141414;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    float: right;
+    position: right: 8px;
+}
+.delete-btn:hover { background: rgba(247, 232, 232, 0.35); color: #fff; }
+html.dark .delete-btn { color: #ffffff; }
