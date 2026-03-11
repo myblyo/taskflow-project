@@ -12,7 +12,8 @@
     cursor: pointer;
     transition: background 0.2s, color 0.2s;
     float: right;
-    position: right: 8px;
+    position: absolute;
+    right: 8px;
 }
 .delete-btn:hover { background: rgba(247, 232, 232, 0.35); color: #fff; }
 html.dark .delete-btn { color: #ffffff; }

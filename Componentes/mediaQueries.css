@@ -1,0 +1,56 @@
+/* ── Tablet (≤ 768px) ── */
+@media (max-width: 768px) {
+
+    main {
+        flex-direction: column;
+    }
+
+    aside {
+        width: 100%;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    aside details {
+        flex: 1 1 140px;
+    }
+
+    .content {
+        width: 100%;
+    }
+
+    .row {
+        flex-direction: column;
+    }
+
+    .row input,
+    .row select,
+    .row button {
+        width: 100%;
+    }
+}
+
+/* ── Mobile (≤ 480px) ── */
+@media (max-width: 480px) {
+
+    h1 {
+        font-size: 1.4rem;
+    }
+
+    aside {
+        flex-direction: column;
+    }
+
+    aside details {
+        width: 100%;
+    }
+
+    #resetBtn {
+        width: 100%;
+    }
+
+    form.glass {
+        padding: 12px;
+    }
+}
