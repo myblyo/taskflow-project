@@ -88,7 +88,7 @@ function ensureFormMessageArea(formEl) {
     let area = formEl.querySelector('.form-message');
     if (area) return /** @type {HTMLDivElement} */ (area);
 
-    area = el('div', 'form-message');
+    area = createElement('div', 'form-message');
     area.setAttribute('role', 'alert');
     area.setAttribute('aria-live', 'polite');
     area.style.display = 'none';
@@ -121,14 +121,35 @@ function clearFormMessage(formEl) {
 }
 
 /**
- * Devuelve true si la fecha (YYYY-MM-DD) es válida.
+ * Parsea una fecha en formato dd-mm-aaaa.
+ * @param {string} dateString
+ * @returns {Date|null}
+ */
+function parseUserDate(dateString) {
+    const match = /^(\d{2})-(\d{2})-(\d{4})$/.exec(dateString);
+    if (!match) return null;
+    const [, dd, mm, yyyy] = match;
+    const day = Number(dd);
+    const month = Number(mm) - 1; // Date usa 0-11
+    const year = Number(yyyy);
+    const date = new Date(year, month, day);
+    if (
+        date.getFullYear() !== year ||
+        date.getMonth() !== month ||
+        date.getDate() !== day
+    ) {
+        return null;
+    }
+    return date;
+}
+
+/**
+ * Devuelve true si la fecha (dd-mm-aaaa) es válida.
  * @param {string} dateString
  * @returns {boolean}
  */
 function isValidDateInputValue(dateString) {
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateString)) return false;
-    const date = new Date(`${dateString}T00:00:00`);
-    return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === dateString;
+    return parseUserDate(dateString) !== null;
 }
 
 /**
@@ -137,9 +158,12 @@ function isValidDateInputValue(dateString) {
  * @returns {boolean}
  */
 function isPastDate(dateString) {
+    const date = parseUserDate(dateString);
+    if (!date) return false;
     const today = new Date();
-    const todayISO = new Date(today.getFullYear(), today.getMonth(), today.getDate()).toISOString().slice(0, 10);
-    return dateString < todayISO;
+    const todayAtMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const userAtMidnight = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    return userAtMidnight < todayAtMidnight;
 }
 
 /**

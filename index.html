@@ -66,7 +66,14 @@
             </div>
             <div class="row">
                 <input type="text" id="task-desc" name="description" placeholder="Descripción (opcional)" class="flex-1" maxlength="240">
-                <input type="date" id="task-date" name="dueDate" required>
+                <input
+                  type="text"
+                  id="task-date"
+                  name="dueDate"
+                  placeholder="dd-mm-aaaa"
+                  pattern="\\d{2}-\\d{2}-\\d{4}"
+                  inputmode="numeric"
+                  required>
                 <button type="submit">+ Agregar tarea</button>
             </div>
         </form>
