@@ -41,23 +41,23 @@
 
     <!-- Content -->
     <div class="content">
-        <div style="display:flex; align-items:center; justify-content:space-between;">
+        <div class="content-header">
             <h1>Lista de tareas</h1>
             <input class="theme-checkbox" type="checkbox" id="darkToggle" />
         </div>
 
 
-        <form class="glass" id="task-form">
+        <form class="glass" id="task-form" novalidate>
             <div class="row">
-                <input type="text" id="task-title" placeholder="Título de la tarea" class="flex-1" required>
-                <select id="category-select" required>
+                <input type="text" id="task-title" name="title" placeholder="Título de la tarea" class="flex-1" required minlength="1" maxlength="80">
+                <select id="category-select" name="category" required>
                     <option value="" disabled selected>Categoría</option>
                     <option value="Trabajo">Trabajo</option>
                     <option value="Estudio">Estudio</option>
                     <option value="Personal">Personal</option>
                     <option value="Otro">Otro</option>
                 </select>
-                <select id="priority-select" required>
+                <select id="priority-select" name="priority" required>
                     <option value="" disabled selected>Prioridad</option>
                     <option value="Alto">Alto</option>
                     <option value="Medio">Medio</option>
@@ -65,8 +65,8 @@
                 </select>
             </div>
             <div class="row">
-                <input type="text" id="task-desc" placeholder="Descripción (opcional)" class="flex-1">
-                <input type="date" id="task-date" required>
+                <input type="text" id="task-desc" name="description" placeholder="Descripción (opcional)" class="flex-1" maxlength="240">
+                <input type="date" id="task-date" name="dueDate" required>
                 <button type="submit">+ Agregar tarea</button>
             </div>
         </form>
