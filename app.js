@@ -5,7 +5,7 @@
  * @property {string} description
  * @property {string} category
  * @property {string} priority
- * @property {string} dueDate - Valor del input date (YYYY-MM-DD).
+ * @property {string} dueDate - Fecha en formato dd-mm-aaaa.
  * @property {boolean} completed
  */
 
@@ -171,13 +171,18 @@ function isPastDate(dateString) {
  * @returns {Task}
  */
 function buildTaskFromForm() {
+    const titleEl = document.getElementById('task-title');
+    const descEl = document.getElementById('task-desc');
+    const categoryEl = document.getElementById('category-select');
+    const priorityEl = document.getElementById('priority-select');
+    const dateEl = document.getElementById('task-date');
     return {
-        id: Date.now(),
-        title: document.getElementById('task-title').value.trim(),
-        description: document.getElementById('task-desc').value.trim(),
-        category: document.getElementById('category-select').value,
-        priority: document.getElementById('priority-select').value,
-        dueDate: document.getElementById('task-date').value,
+        id: nextTaskId(),
+        title: (titleEl && titleEl.value) ? titleEl.value.trim() : '',
+        description: (descEl && descEl.value) ? descEl.value.trim() : '',
+        category: (categoryEl && categoryEl.value) ? categoryEl.value : '',
+        priority: (priorityEl && priorityEl.value) ? priorityEl.value : '',
+        dueDate: (dateEl && dateEl.value) ? dateEl.value.trim() : '',
         completed: false
     };
 }
@@ -384,6 +389,14 @@ function initFilters() {
 // ── App state ──
 /** @type {Task[]} */
 let tasks = safeLoadJson('tasks', []);
+
+/** Siguiente id único para nuevas tareas (evita colisiones con Date.now() en el mismo ms). */
+let nextTaskIdValue = tasks.length ? Math.max(...tasks.map(t => t.id)) + 1 : 1;
+
+/** Genera un id único para una nueva tarea. */
+function nextTaskId() {
+    return nextTaskIdValue++;
+}
 
 // ── Boot ──
 initTheme();
