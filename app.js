@@ -306,7 +306,7 @@ function renderTaskCard(task) {
     const cardInner = createElement('div', 'card2');
 
     const titleRow = createElement('h3', 'task-title');
-    const checkbox = createElement('input', 'task-checkbox');
+    const checkbox = createElement('input', ['task-checkbox', 'checkbox']);
     checkbox.type = 'checkbox';
     checkbox.checked = task.completed;
 
