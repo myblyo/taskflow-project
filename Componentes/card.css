@@ -41,7 +41,8 @@ html.dark .card2 {
 html.dark .task-title { color: rgba(235,235,245,0.95); }
 .task-title label { cursor: pointer; transition: opacity 0.2s, text-decoration 0.2s; }
 .task-title input[type="checkbox"] { accent-color: #6b6b6b; width: 15px; height: 15px; cursor: pointer; flex-shrink: 0; }
-.task-title input[type="checkbox"]:checked + label {
+.task-title input[type="checkbox"]:checked + label,
+.task-title label:has(input[type="checkbox"]:checked) {
     text-decoration: line-through;
     opacity: 0.45;
 }
