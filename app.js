@@ -31,9 +31,13 @@ const taskListElement = document.getElementById('task-list');
 const taskForm = document.getElementById('task-form');
 const resetBtn = document.getElementById('resetBtn');
 
-/** Checkboxes de filtros cacheados (se rellenan en initFilters). */
+/** Checkboxes de filtros cacheados (se rellenan en la primera llamada). */
 let filterCheckboxesCache = null;
 
+/**
+ * Devuelve los checkboxes de filtros (categoría, prioridad, estado). Usa cache para no repetir querySelectorAll.
+ * @returns {NodeListOf<Element>} Lista de nodos de los checkboxes de filtros.
+ */
 function getFilterCheckboxes() {
     if (!filterCheckboxesCache) {
         filterCheckboxesCache = document.querySelectorAll('.f-cat, .f-pri, .f-sta');
@@ -42,6 +46,13 @@ function getFilterCheckboxes() {
 }
 
 // ── Storage ──
+/**
+ * Lee un valor JSON de localStorage de forma segura. Si la key no existe o el parse falla, devuelve el fallback.
+ * @param {string} key - Clave de localStorage.
+ * @param {T} fallback - Valor a devolver si no hay datos o hay error.
+ * @returns {T} El valor parseado o el fallback.
+ * @template T
+ */
 function safeLoadJson(key, fallback) {
     try {
         const raw = localStorage.getItem(key);
@@ -62,6 +73,10 @@ function safeSaveJson(key, value) {
 }
 
 // ── Theme ──
+/**
+ * Inicializa el tema claro/oscuro: lee la preferencia guardada, aplica la clase .dark al html y enlaza el toggle.
+ * @returns {void}
+ */
 function initTheme() {
     const isDark = localStorage.getItem('theme') === 'dark';
     html.classList.toggle('dark', isDark);
@@ -85,12 +100,23 @@ function ensureFormMessageArea(formEl) {
     return area;
 }
 
+/**
+ * Muestra un mensaje de error en el área de mensajes del formulario.
+ * @param {HTMLFormElement} formEl - Formulario que contiene o recibirá el área .form-message.
+ * @param {string} message - Texto del mensaje de error.
+ * @returns {void}
+ */
 function showFormError(formEl, message) {
     const area = ensureFormMessageArea(formEl);
     area.textContent = message;
     area.style.display = '';
 }
 
+/**
+ * Limpia y oculta el mensaje de error del formulario si existe el área .form-message.
+ * @param {HTMLFormElement} formEl - Formulario cuyo mensaje se quiere limpiar.
+ * @returns {void}
+ */
 function clearFormMessage(formEl) {
     const area = formEl.querySelector('.form-message');
     if (!area) return;
@@ -98,7 +124,11 @@ function clearFormMessage(formEl) {
     /** @type {HTMLElement} */ (area).style.display = 'none';
 }
 
-/** Valor de un input por id, o cadena vacía si no existe. */
+/**
+ * Obtiene el valor de un campo del formulario por su id. Devuelve cadena vacía si el elemento no existe.
+ * @param {string} id - Id del elemento input/select.
+ * @returns {string} Valor recortado (trim) o ''.
+ */
 function getFormValue(id) {
     const el = document.getElementById(id);
     return (el && el.value) ? String(el.value).trim() : '';
@@ -119,6 +149,11 @@ function parseUserDate(dateString) {
     return date;
 }
 
+/**
+ * Indica si una cadena es una fecha válida en formato dd-mm-aaaa.
+ * @param {string} dateString - Cadena a validar.
+ * @returns {boolean} true si es válida, false en caso contrario.
+ */
 function isValidDateInputValue(dateString) {
     return parseUserDate(dateString) !== null;
 }
@@ -133,6 +168,10 @@ function isPastDate(dateString) {
 }
 
 // ── Task form & validation ──
+/**
+ * Construye un objeto Task a partir de los valores actuales del formulario. Asigna id con nextTaskId() y completed: false.
+ * @returns {Task} Objeto tarea con los datos del formulario (strings vacíos si falta algún campo).
+ */
 function buildTaskFromForm() {
     return {
         id: nextTaskId(),
@@ -158,11 +197,23 @@ function validateTask(task) {
     return null;
 }
 
+/**
+ * Devuelve la etiqueta de estado usada en los filtros: "Pendiente" o "Completada" según task.completed.
+ * @param {Task} task - Tarea de la que obtener el estado.
+ * @returns {'Pendiente'|'Completada'}
+ */
 function getTaskStatusLabel(task) {
     return task.completed ? 'Completada' : 'Pendiente';
 }
 
 // ── DOM helpers ──
+/**
+ * Crea un elemento DOM con opcionalmente una o varias clases.
+ * @param {K} tag - Nombre de la etiqueta (ej. 'div', 'span').
+ * @param {string|string[]} [className] - Clase única o array de clases (los falsy se ignoran).
+ * @returns {HTMLElementTagNameMap[K]} El elemento creado.
+ * @template {keyof HTMLElementTagNameMap} K
+ */
 function createElement(tag, className) {
     const node = document.createElement(tag);
     if (Array.isArray(className)) node.classList.add(...className.filter(Boolean));
@@ -171,6 +222,11 @@ function createElement(tag, className) {
 }
 
 // ── Task cards ──
+/**
+ * Construye el bloque de metadatos de una tarjeta (categoría, prioridad, fecha) como nodos DOM, sin innerHTML.
+ * @param {Task} task - Tarea de la que tomar categoría, prioridad y dueDate.
+ * @returns {HTMLDivElement} Contenedor div.card-meta con los spans correspondientes.
+ */
 function createTaskMeta(task) {
     const meta = createElement('div', 'card-meta');
     const cat = createElement('span', ['badge', 'badge-cat']);
@@ -183,6 +239,12 @@ function createTaskMeta(task) {
     return meta;
 }
 
+/**
+ * Rellena los data-* del elemento card para que applyFilters pueda evaluar categoría, prioridad y estado.
+ * @param {HTMLElement} card - Elemento de la tarjeta (ej. article.card-task).
+ * @param {Task} task - Tarea con los datos a escribir en dataset.
+ * @returns {void}
+ */
 function setCardDatasets(card, task) {
     card.dataset.id = String(task.id);
     card.dataset.category = task.category;
@@ -201,6 +263,11 @@ function removeTaskCard(card, taskId) {
     }, 200);
 }
 
+/**
+ * Crea el DOM de una tarjeta de tarea (título con checkbox, descripción, meta, botón borrar), enlaza eventos y la añade a la lista.
+ * @param {Task} task - Tarea a renderizar.
+ * @returns {void}
+ */
 function renderTaskCard(task) {
     if (!taskListElement) return;
 
@@ -245,7 +312,11 @@ function renderTaskCard(task) {
 }
 
 // ── Filters ──
-/** Valores seleccionados de un grupo de filtros (usa cache de nodos). */
+/**
+ * Devuelve los valores seleccionados de un grupo de filtros (categoría, prioridad o estado). Usa el cache de checkboxes.
+ * @param {'category'|'priority'|'status'} group - Grupo de filtro según FILTER_SELECTORS.
+ * @returns {string[]} Valores (value) de los checkboxes marcados de ese grupo.
+ */
 function getCheckedFilterValues(group) {
     const selector = FILTER_SELECTORS[group];
     return [...getFilterCheckboxes()]
@@ -253,6 +324,10 @@ function getCheckedFilterValues(group) {
         .map(el => el.value);
 }
 
+/**
+ * Muestra u oculta cada tarjeta según los filtros activos: AND entre grupos (cat + prioridad + estado), OR dentro de cada grupo.
+ * @returns {void}
+ */
 function applyFilters() {
     const selected = {
         category: getCheckedFilterValues('category'),
@@ -268,6 +343,10 @@ function applyFilters() {
     });
 }
 
+/**
+ * Enlaza los eventos change de los checkboxes de filtros a applyFilters y el click del botón reset para desmarcar y reaplicar.
+ * @returns {void}
+ */
 function initFilters() {
     getFilterCheckboxes().forEach(cb => cb.addEventListener('change', applyFilters));
     if (resetBtn) {
@@ -284,10 +363,19 @@ let tasks = safeLoadJson('tasks', []);
 
 let nextTaskIdValue = tasks.length ? Math.max(...tasks.map(t => t.id)) + 1 : 1;
 
+/**
+ * Genera un id único para una nueva tarea (incremento sobre el máximo id existente) para evitar colisiones.
+ * @returns {number} Nuevo id numérico único.
+ */
 function nextTaskId() {
     return nextTaskIdValue++;
 }
 
+/**
+ * Persiste el array de tareas en localStorage bajo la clave 'tasks'. No notifica si falla el guardado.
+ * @param {Task[]} taskList - Array de tareas a guardar.
+ * @returns {void}
+ */
 function saveTasks(taskList) {
     safeSaveJson('tasks', taskList);
 }
