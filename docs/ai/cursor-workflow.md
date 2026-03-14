@@ -18,3 +18,17 @@ En este archivo se incluirán:
 El objetivo de este documento es registrar cómo las herramientas de inteligencia artificial integradas en Cursor pueden mejorar la productividad, facilitar la comprensión del código y acelerar el desarrollo del proyecto.
 
 En las siguientes secciones se documentarán ejemplos concretos y los atajos más utilizados durante el desarrollo.
+
+## Atajos de teclado
+    Ctrl + L → abrir chat
+    Ctrl + K → edición con IA
+    Ctrl + ` → abrir terminal
+    Tab → aceptar sugerencias
+    Ctrl + Shift + Y → Aceptar cambios
+
+## Chat contextual
+
+prompts utilizados
+
+Review this code and suggest improvements for readability, performance and structure.\
+
