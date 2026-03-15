@@ -252,6 +252,134 @@ function setCardDatasets(card, task) {
     card.dataset.status = getTaskStatusLabel(task);
 }
 
+/**
+ * Cierra todos los desplegables de menú de tarjetas abiertos.
+ * @returns {void}
+ */
+function closeAllCardDropdowns() {
+    document.querySelectorAll('.card-dropdown.is-open').forEach(d => d.classList.remove('is-open'));
+}
+
+/**
+ * Actualiza el contenido visible de una tarjeta (título, descripción, meta y datasets) sin recrear el nodo.
+ * @param {HTMLElement} card - Article de la tarjeta.
+ * @param {Task} task - Tarea con los datos ya actualizados.
+ * @returns {void}
+ */
+function updateCardContent(card, task) {
+    setCardDatasets(card, task);
+    const label = card.querySelector('.task-title label');
+    if (label && label.lastChild) label.lastChild.textContent = task.title;
+    const card2 = card.querySelector('.card2');
+    const titleRow = card2?.querySelector('.task-title');
+    const descEl = card2?.querySelector('.task-description');
+    if (task.description) {
+        if (descEl) descEl.textContent = task.description;
+        else if (titleRow) {
+            const desc = createElement('p', 'task-description');
+            desc.textContent = task.description;
+            titleRow.insertAdjacentElement('afterend', desc);
+        }
+    } else if (descEl) descEl.remove();
+    const metaContainer = card.querySelector('.card-meta');
+    if (metaContainer) {
+        const newMeta = createTaskMeta(task);
+        metaContainer.replaceWith(newMeta);
+    }
+}
+
+/**
+ * Abre el modal de edición con los datos de la tarea. Al guardar, actualiza la tarea, la tarjeta y cierra el modal.
+ * @param {Task} task - Tarea a editar (se modifica en el array tasks).
+ * @param {HTMLElement} card - Tarjeta asociada para refrescar su contenido.
+ * @returns {void}
+ */
+function openEditModal(task, card) {
+    const overlay = createElement('div', 'modal-overlay');
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('aria-label', 'Editar tarea');
+
+    const modal = createElement('div', 'modal-edit');
+    modal.innerHTML = `
+        <h2>Editar tarea</h2>
+        <div class="form-message" role="alert" style="display:none;"></div>
+        <div class="row">
+            <input type="text" id="edit-task-title" class="flex-1" placeholder="Título" value="${escapeAttr(task.title)}" maxlength="${MAX_TITLE_LENGTH}">
+            <select id="edit-category">
+                ${TASK_CATEGORIES.map(c => `<option value="${escapeAttr(c)}" ${c === task.category ? 'selected' : ''}>${escapeAttr(c)}</option>`).join('')}
+            </select>
+            <select id="edit-priority">
+                ${TASK_PRIORITIES.map(p => `<option value="${escapeAttr(p)}" ${p === task.priority ? 'selected' : ''}>${escapeAttr(p)}</option>`).join('')}
+            </select>
+        </div>
+        <div class="row">
+            <input type="text" id="edit-task-desc" class="flex-1" placeholder="Descripción (opcional)" value="${escapeAttr(task.description || '')}" maxlength="${MAX_DESCRIPTION_LENGTH}">
+            <input type="text" id="edit-task-date" placeholder="dd-mm-aaaa" value="${escapeAttr(task.dueDate)}">
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="btn-secondary modal-cancel">Cancelar</button>
+            <button type="button" class="btn-primary modal-save">Guardar</button>
+        </div>
+    `;
+    overlay.appendChild(modal);
+
+    const msgEl = modal.querySelector('.form-message');
+    const titleEl = modal.querySelector('#edit-task-title');
+    const descEl = modal.querySelector('#edit-task-desc');
+    const categoryEl = modal.querySelector('#edit-category');
+    const priorityEl = modal.querySelector('#edit-priority');
+    const dateEl = modal.querySelector('#edit-task-date');
+
+    function closeModal() {
+        overlay.setAttribute('aria-hidden', 'true');
+        overlay.style.display = 'none';
+        document.body.removeChild(overlay);
+        document.removeEventListener('click', closeOnClickOutside);
+    }
+
+    function closeOnClickOutside(e) {
+        if (e.target === overlay) closeModal();
+    }
+
+    overlay.querySelector('.modal-cancel').addEventListener('click', closeModal);
+    overlay.querySelector('.modal-save').addEventListener('click', () => {
+        const updated = {
+            id: task.id,
+            title: (titleEl && titleEl.value) ? titleEl.value.trim() : '',
+            description: (descEl && descEl.value) ? descEl.value.trim() : '',
+            category: (categoryEl && categoryEl.value) ? categoryEl.value : '',
+            priority: (priorityEl && priorityEl.value) ? priorityEl.value : '',
+            dueDate: (dateEl && dateEl.value) ? dateEl.value.trim() : '',
+            completed: task.completed
+        };
+        const err = validateTask(updated);
+        if (err) {
+            if (msgEl) { msgEl.textContent = err; msgEl.style.display = ''; }
+            return;
+        }
+        Object.assign(task, updated);
+        saveTasks(tasks);
+        updateCardContent(card, task);
+        closeModal();
+    });
+
+    document.body.appendChild(overlay);
+    document.addEventListener('click', closeOnClickOutside);
+}
+
+/**
+ * Escapa una cadena para usarla como valor de atributo HTML (evita comillas y &).
+ * @param {string} str
+ * @returns {string}
+ */
+function escapeAttr(str) {
+    if (typeof str !== 'string') return '';
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML.replace(/"/g, '&quot;');
+}
+
 function removeTaskCard(card, taskId) {
     card.style.transition = 'opacity 0.2s, transform 0.2s';
     card.style.opacity = '0';
@@ -264,7 +392,7 @@ function removeTaskCard(card, taskId) {
 }
 
 /**
- * Crea el DOM de una tarjeta de tarea (título con checkbox, descripción, meta, botón borrar), enlaza eventos y la añade a la lista.
+ * Crea el DOM de una tarjeta de tarea (menú de tres puntos a la izquierda con Editar/Borrar, título con checkbox, descripción, meta).
  * @param {Task} task - Tarea a renderizar.
  * @returns {void}
  */
@@ -275,15 +403,34 @@ function renderTaskCard(task) {
     setCardDatasets(card, task);
 
     const cardInner = createElement('div', 'card2');
+    const topRow = createElement('div', 'card2-top');
+
     const titleRow = createElement('h3', 'task-title');
     const checkbox = createElement('input', ['task-checkbox', 'checkbox']);
     checkbox.type = 'checkbox';
     checkbox.checked = task.completed;
-
     const label = createElement('label');
     label.append(checkbox, document.createTextNode(task.title));
     titleRow.appendChild(label);
-    cardInner.appendChild(titleRow);
+    topRow.appendChild(titleRow);
+
+    const menu = createElement('div', 'card-menu');
+    const menuBtn = createElement('button', 'card-menu-btn');
+    menuBtn.type = 'button';
+    menuBtn.setAttribute('aria-label', 'Abrir menú');
+    menuBtn.textContent = '⋮';
+    const dropdown = createElement('div', 'card-dropdown');
+    const optEdit = createElement('button', 'card-dropdown-option');
+    optEdit.type = 'button';
+    optEdit.textContent = 'Editar';
+    const optDelete = createElement('button', 'card-dropdown-option card-dropdown-option--danger');
+    optDelete.type = 'button';
+    optDelete.textContent = 'Borrar';
+    dropdown.append(optEdit, optDelete);
+    menu.append(menuBtn, dropdown);
+    topRow.appendChild(menu);
+
+    cardInner.appendChild(topRow);
 
     if (task.description) {
         const desc = createElement('p', 'task-description');
@@ -292,11 +439,32 @@ function renderTaskCard(task) {
     }
 
     const meta = createTaskMeta(task);
-    const deleteBtn = createElement('button', 'delete-btn');
-    deleteBtn.type = 'button';
-    deleteBtn.textContent = ' × ';
-    cardInner.append(meta, deleteBtn);
+    cardInner.appendChild(meta);
     card.appendChild(cardInner);
+
+    menuBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const wasOpen = dropdown.classList.contains('is-open');
+        closeAllCardDropdowns();
+        if (!wasOpen) {
+            dropdown.classList.add('is-open');
+            const closeOnOutside = () => {
+                closeAllCardDropdowns();
+                document.removeEventListener('click', closeOnOutside);
+            };
+            setTimeout(() => document.addEventListener('click', closeOnOutside), 0);
+        }
+    });
+    optEdit.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdown.classList.remove('is-open');
+        openEditModal(task, card);
+    });
+    optDelete.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdown.classList.remove('is-open');
+        removeTaskCard(card, task.id);
+    });
 
     checkbox.addEventListener('change', () => {
         const target = tasks.find(t => t.id === task.id);
@@ -307,7 +475,6 @@ function renderTaskCard(task) {
         applyFilters();
     });
 
-    deleteBtn.addEventListener('click', () => removeTaskCard(card, task.id));
     taskListElement.appendChild(card);
 }
 
