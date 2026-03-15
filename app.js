@@ -37,9 +37,16 @@ const progressPercentEl = document.getElementById('progressPercent');
 const progressFillEl = document.getElementById('progressFill');
 const progressCountEl = document.getElementById('progressCount');
 const progressBarEl = document.querySelector('.sidebar-progress-bar');
+const selectModeBtn = document.getElementById('selectModeBtn');
+const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
 
 /** Checkboxes de filtros cacheados (se rellenan en la primera llamada). */
 let filterCheckboxesCache = null;
+
+/** Modo selección múltiple para borrar varias tareas a la vez. */
+let isSelectMode = false;
+/** Set de ids de tareas seleccionadas (solo en modo selección). */
+let selectedIds = new Set();
 
 /**
  * Devuelve los checkboxes de filtros (categoría, prioridad, estado). Usa cache para no repetir querySelectorAll.
@@ -277,6 +284,8 @@ function closeAllCardDropdowns() {
  */
 function updateCardContent(card, task) {
     setCardDatasets(card, task);
+    const titleRow = card.querySelector('.task-title');
+    if (titleRow) titleRow.classList.toggle('is-completed', task.completed);
     const label = card.querySelector('.task-title label');
     if (label && label.lastChild) label.lastChild.textContent = task.title;
     const statusTrigger = card.querySelector('.card-status-wrap button.badge-status');
@@ -286,9 +295,8 @@ function updateCardContent(card, task) {
         statusTrigger.className = 'badge badge-status ' + (STATUS_CLASS_MAP[statusLabel] || 'badge-status-pendiente');
     }
     const cardCheckbox = card.querySelector('.task-checkbox');
-    if (cardCheckbox) cardCheckbox.checked = task.completed;
+    if (cardCheckbox && !isSelectMode) cardCheckbox.checked = task.completed;
     const card2 = card.querySelector('.card2');
-    const titleRow = card2?.querySelector('.task-title');
     const descEl = card2?.querySelector('.task-description');
     if (task.description) {
         if (descEl) descEl.textContent = task.description;
@@ -404,6 +412,8 @@ function escapeAttr(str) {
 }
 
 function removeTaskCard(card, taskId) {
+    selectedIds.delete(taskId);
+    updateDeleteSelectedState();
     card.style.transition = 'opacity 0.2s, transform 0.2s';
     card.style.opacity = '0';
     card.style.transform = 'translateY(-8px)';
@@ -429,6 +439,7 @@ function renderTaskCard(task) {
     const topRow = createElement('div', 'card2-top');
 
     const titleRow = createElement('h3', 'task-title');
+    if (task.completed) titleRow.classList.add('is-completed');
     const checkbox = createElement('input', ['task-checkbox', 'checkbox']);
     checkbox.type = 'checkbox';
     checkbox.checked = task.completed;
@@ -508,6 +519,7 @@ function renderTaskCard(task) {
             statusTrigger.textContent = newStatus;
             statusTrigger.className = 'badge badge-status ' + (STATUS_CLASS_MAP[newStatus] || 'badge-status-pendiente');
             checkbox.checked = target.completed;
+            titleRow.classList.toggle('is-completed', target.completed);
             setCardDatasets(card, target);
             saveTasks(tasks);
             applyFilters();
@@ -539,6 +551,14 @@ function renderTaskCard(task) {
     });
 
     checkbox.addEventListener('change', () => {
+        if (isSelectMode) {
+            const id = task.id;
+            if (selectedIds.has(id)) selectedIds.delete(id);
+            else selectedIds.add(id);
+            card.classList.toggle('is-selected', selectedIds.has(id));
+            updateDeleteSelectedState();
+            return;
+        }
         const target = tasks.find(t => t.id === task.id);
         if (!target) return;
         target.completed = checkbox.checked;
@@ -546,6 +566,7 @@ function renderTaskCard(task) {
         card.dataset.status = getTaskStatusLabel(target);
         statusTrigger.textContent = target.status;
         statusTrigger.className = 'badge badge-status ' + (STATUS_CLASS_MAP[target.status] || 'badge-status-pendiente');
+        titleRow.classList.toggle('is-completed', target.completed);
         saveTasks(tasks);
         applyFilters();
     });
@@ -648,11 +669,73 @@ function updateProgress() {
     }
 }
 
+/**
+ * Activa o desactiva el modo selección. Al salir, limpia la selección y desmarca los checkboxes de las cartas.
+ * @param {boolean} on - true para activar modo selección.
+ * @returns {void}
+ */
+function setSelectMode(on) {
+    isSelectMode = on;
+    document.body.classList.toggle('select-mode', on);
+    if (!on) {
+        selectedIds.clear();
+        document.querySelectorAll('.card-task .task-checkbox').forEach(cb => { cb.checked = false; });
+        document.querySelectorAll('.card-task.is-selected').forEach(c => c.classList.remove('is-selected'));
+    }
+    if (selectModeBtn) {
+        selectModeBtn.textContent = on ? 'Cancelar' : 'Seleccionar';
+        selectModeBtn.classList.toggle('is-active', on);
+    }
+    updateDeleteSelectedState();
+}
+
+/**
+ * Actualiza el estado del botón "Borrar seleccionadas" (disabled si no hay ninguna seleccionada, rojo si hay selección).
+ * @returns {void}
+ */
+function updateDeleteSelectedState() {
+    if (!deleteSelectedBtn) return;
+    const hasSelection = selectedIds.size > 0;
+    deleteSelectedBtn.disabled = !hasSelection;
+    deleteSelectedBtn.classList.toggle('has-selection', hasSelection);
+}
+
+/**
+ * Borra todas las tareas seleccionadas, anima la salida de las cartas y sale del modo selección.
+ * @returns {void}
+ */
+function deleteSelectedTasks() {
+    if (selectedIds.size === 0) return;
+    const idsToRemove = new Set(selectedIds);
+    const cardsToRemove = [...document.querySelectorAll('.card-task')].filter(card => idsToRemove.has(Number(card.dataset.id)));
+    cardsToRemove.forEach(card => {
+        card.style.transition = 'opacity 0.2s, transform 0.2s';
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(-8px)';
+    });
+    setTimeout(() => {
+        cardsToRemove.forEach(card => card.remove());
+        const before = tasks.length;
+        tasks = tasks.filter(t => !idsToRemove.has(t.id));
+        selectedIds.clear();
+        saveTasks(tasks);
+        updateProgress();
+        setSelectMode(false);
+    }, 200);
+}
+
 // ── Boot ──
 initTheme();
 initFilters();
 tasks.forEach(renderTaskCard);
 updateProgress();
+
+if (selectModeBtn) {
+    selectModeBtn.addEventListener('click', () => setSelectMode(!isSelectMode));
+}
+if (deleteSelectedBtn) {
+    deleteSelectedBtn.addEventListener('click', deleteSelectedTasks);
+}
 
 if (taskForm) {
     taskForm.addEventListener('submit', (e) => {

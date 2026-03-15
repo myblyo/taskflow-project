@@ -50,7 +50,11 @@
     <div class="content">
         <div class="content-header">
             <h1>Lista de tareas</h1>
-            <input class="theme-checkbox" type="checkbox" id="darkToggle" />
+            <div class="header-actions">
+                <button type="button" class="header-btn" id="selectModeBtn">Seleccionar</button>
+                <button type="button" class="header-btn header-btn--danger" id="deleteSelectedBtn" title="Borrar seleccionadas" aria-label="Borrar tareas seleccionadas" disabled>🗑</button>
+                <input class="theme-checkbox" type="checkbox" id="darkToggle" aria-label="Cambiar a modo oscuro" />
+            </div>
         </div>
 
 

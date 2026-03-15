@@ -178,12 +178,15 @@ html.dark .card2 {
 }
 html.dark .task-title { color: rgba(235,235,245,0.95); }
 .task-title label { cursor: pointer; transition: opacity 0.2s, text-decoration 0.2s; }
-.task-title input[type="checkbox"] { accent-color: #6b6b6b; width: 15px; height: 15px; cursor: pointer; flex-shrink: 0; }
-.task-title input[type="checkbox"]:checked + label,
-.task-title label:has(input[type="checkbox"]:checked) {
-    text-decoration: line-through;
-    opacity: 0.45;
-}
+/* Completado: strikethrough por clase (estado de la tarea), no por el checkbox */
+.task-title.is-completed label { text-decoration: line-through; opacity: 0.45; }
+/* Checkbox oculto por defecto; solo visible en modo selección */
+.task-title .task-checkbox { display: none; width: 15px; height: 15px; cursor: pointer; flex-shrink: 0; accent-color: #6b6b6b; }
+body.select-mode .task-title .task-checkbox { display: inline-block; }
+body.select-mode .task-title .task-checkbox:checked + label { text-decoration: none; opacity: 1; }
+/* En modo selección, tarjeta seleccionada: borde destacado */
+body.select-mode .card-task.is-selected { box-shadow: 0 0 0 2px rgba(100,120,220,0.6); }
+html.dark body.select-mode .card-task.is-selected { box-shadow: 0 0 0 2px rgba(165,180,252,0.5); }
 
 /* Card meta */
 .task-description { font-size: 0.77rem; color: rgba(30,35,50,0.60); margin: 3px 0 6px 23px; }
