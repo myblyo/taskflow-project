@@ -33,6 +33,10 @@ const darkToggle = document.getElementById('darkToggle');
 const taskListElement = document.getElementById('task-list');
 const taskForm = document.getElementById('task-form');
 const resetBtn = document.getElementById('resetBtn');
+const progressPercentEl = document.getElementById('progressPercent');
+const progressFillEl = document.getElementById('progressFill');
+const progressCountEl = document.getElementById('progressCount');
+const progressBarEl = document.querySelector('.sidebar-progress-bar');
 
 /** Checkboxes de filtros cacheados (se rellenan en la primera llamada). */
 let filterCheckboxesCache = null;
@@ -624,12 +628,31 @@ function nextTaskId() {
  */
 function saveTasks(taskList) {
     safeSaveJson('tasks', taskList);
+    updateProgress();
+}
+
+/**
+ * Actualiza la barra de progreso del sidebar: porcentaje, barra y texto "completadas/total tareas".
+ * @returns {void}
+ */
+function updateProgress() {
+    if (!progressPercentEl || !progressFillEl || !progressCountEl) return;
+    const total = tasks.length;
+    const completed = tasks.filter(t => t.status === 'Completada' || t.completed).length;
+    const percent = total ? Math.round((completed / total) * 100) : 0;
+    progressPercentEl.textContent = percent + '%';
+    progressFillEl.style.width = percent + '%';
+    progressCountEl.textContent = completed + '/' + total + ' tareas';
+    if (progressBarEl) {
+        progressBarEl.setAttribute('aria-valuenow', percent);
+    }
 }
 
 // ── Boot ──
 initTheme();
 initFilters();
 tasks.forEach(renderTaskCard);
+updateProgress();
 
 if (taskForm) {
     taskForm.addEventListener('submit', (e) => {

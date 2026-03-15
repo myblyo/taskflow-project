@@ -14,6 +14,13 @@
 <main>
     <!-- Sidebar -->
     <aside class="glass">
+        <div class="sidebar-progress" aria-label="Progreso de tareas">
+            <div class="sidebar-progress-percent" id="progressPercent">0%</div>
+            <div class="sidebar-progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                <div class="sidebar-progress-fill" id="progressFill"></div>
+            </div>
+            <div class="sidebar-progress-count" id="progressCount">0/0 tareas</div>
+        </div>
         <button type="button" id="resetBtn">🗑 filtros</button>
 
         <details open>
