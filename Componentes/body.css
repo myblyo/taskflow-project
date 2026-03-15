@@ -1,3 +1,15 @@
+/**
+ * Reset y estilos base del documento: tipografía, fondo de página.
+ * @file body.css
+ *
+ * Diseño editable:
+ * - Fuente global: font-family en html, body (ej. 'Noto Sans Mono').
+ * - Fondo claro: body (background-color, background-image, background-size para el patrón de puntos).
+ * - Fondo oscuro: html.dark body (mismos aspectos con tonos oscuros).
+ * - Padding del body; transición al cambiar tema.
+ * - .card-task animation (slideIn) si se usa.
+ */
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {

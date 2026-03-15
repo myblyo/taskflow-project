@@ -1,3 +1,10 @@
+/**
+ * Punto de entrada de estilos: importa todos los CSS del proyecto.
+ * @file style.css
+ * Orden: body → card, checkbox, deletebtn, form, glass → layout, maincnt, resetbtn, sidebar → mediaQueries, themebox.
+ * Para cambiar diseño, edita los archivos importados (cada uno documentado en su cabecera).
+ */
+
 @import url("body.css");
 @import url("card.css");
 @import url("checkbox.css");

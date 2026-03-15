@@ -1,3 +1,11 @@
+/**
+ * Botón de borrar (clase .delete-btn). Puede usarse en otras vistas.
+ * @file deletebtn.css
+ *
+ * Diseño editable:
+ * - .delete-btn: font-size, height, padding, border-radius, border, background, color, posición.
+ * - :hover (background, color). html.dark .delete-btn (color).
+ */
 
 .delete-btn {
     font-family: inherit;

@@ -1,3 +1,15 @@
+/**
+ * Formulario de nueva tarea: inputs, selects, botón enviar.
+ * @file form.css
+ *
+ * Diseño editable:
+ * - Contenedor: form (padding, gap); .row (gap, flex-wrap).
+ * - Inputs y select: font-size, height, padding, border-radius, border, background, color;
+ *   :focus (border-color, box-shadow); ::placeholder; variantes html.dark.
+ * - Botón enviar: button[type="submit"] (height, padding, border-radius, background, font-weight, hover, :active).
+ * - .flex-1 (min-width para campos flexibles).
+ */
+
 /* ── Form ── */
 form { display: flex; flex-direction: column; gap: 0.6rem; padding: 1.2rem; }
 

@@ -1,3 +1,19 @@
+/**
+ * Sidebar: barra de progreso y filtros (Categorías, Prioridad, Estado).
+ * @file sidebar.css
+ *
+ * Diseño editable:
+ * - Contenedor: aside (width, padding, gap, position sticky, top).
+ * - Barra de progreso: .sidebar-progress (background, backdrop-filter, border, border-radius, padding, gap);
+ *   .sidebar-progress-percent (font-size, font-weight, color);
+ *   .sidebar-progress-bar (height, background, border-radius);
+ *   .sidebar-progress-fill (gradiente de color, transition);
+ *   .sidebar-progress-count (font-size, color).
+ * - Títulos de sección: aside summary (font-size, letter-spacing, text-transform, color, hover).
+ * - Espaciado de filtros: aside details (gap).
+ * Variantes en html.dark para todos los anteriores.
+ */
+
 /* ── Sidebar ── */
 aside {
     width: 210px;

@@ -1,3 +1,14 @@
+/**
+ * Diseño responsive: tablet y móvil.
+ * @file mediaQueries.css
+ *
+ * Diseño editable:
+ * - Puntos de corte: 768px y 480px (cambiar max-width para otros breakpoints).
+ * - Tablet: main (flex-direction), aside (width, flex, wrap), .content, .row e inputs (width 100%).
+ * - Móvil: ajustes adicionales (padding, tamaños, ocultar/mostrar elementos).
+ * Ajustar valores dentro de cada @media para adaptar la maquetación.
+ */
+
 /* ── Tablet (≤ 768px) ── */
 @media (max-width: 768px) {
 

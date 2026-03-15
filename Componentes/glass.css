@@ -1,3 +1,12 @@
+/**
+ * Estilo "glass" (vidrio esmerilado): fondo semitransparente + blur.
+ * Usado en sidebar, formulario y otros bloques.
+ * @file glass.css
+ *
+ * Diseño editable:
+ * - .glass: background (rgba), backdrop-filter (blur), border, border-radius, transition.
+ * - html.dark .glass: background y border-color para modo oscuro.
+ */
 
 /* ── Glass mixin ── */
 .glass {

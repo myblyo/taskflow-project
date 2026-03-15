@@ -1,3 +1,19 @@
+/**
+ * Tarjetas de tarea (cards), menú, badges, barra de estado, modal de edición.
+ * @file card.css
+ *
+ * Diseño editable:
+ * - Colores por categoría: .card-task[data-category="Trabajo"], Personal, Estudio, Otro (background linear-gradient).
+ * - Tamaño y forma de la card: .card2 (height, padding, border-radius, backdrop-filter).
+ * - Badges: .badge (font-size, padding, border-radius); .badge-cat, .badge-alto, .badge-medio, .badge-bajo;
+ *   .badge-status-pendiente, .badge-status-progreso, .badge-status-completada (colores y bordes).
+ * - Título: .task-title (font-size, font-weight, color); .task-title.is-completed (strikethrough, opacity).
+ * - Dropdown del menú y del estado: .card-dropdown (posición, min-width, padding, sombra, border-radius);
+ *   .card-dropdown-option (padding, hover); .card-dropdown-option--danger (hover rojo).
+ * - Botón menú ⋮: .card-menu-btn (tamaño, color, hover).
+ * - Modo selección: body.select-mode .card-task.is-selected (box-shadow del borde).
+ * - Modal: .modal-overlay, .modal-edit (fondo, padding, sombra, bordes); botones .btn-primary, .btn-secondary.
+ */
 
 .card-task {
     position: relative;

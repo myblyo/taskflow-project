@@ -1,3 +1,16 @@
+/**
+ * Área principal de contenido: header, botones (Seleccionar, Borrar, tema), título.
+ * @file maincnt.css
+ *
+ * Diseño editable:
+ * - Espaciado del contenido: .content (gap, flex).
+ * - Header: .content-header (gap, flex-wrap); .header-actions (gap entre botones).
+ * - Botones del header: .header-btn (font-size, height, padding, border-radius, background, color, transition);
+ *   .header-btn--danger (hover y .has-selection: colores rojos);
+ *   .header-btn.is-active (modo selección: fondo azul);
+ *   .header-btn:disabled (opacity, cursor).
+ * - Título de página: h1 (font-size, font-weight, color). Variantes en html.dark.
+ */
 
 /* ── Main content ── */
 .content {

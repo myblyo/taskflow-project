@@ -1,2 +1,11 @@
+/**
+ * Layout principal: disposición del main (sidebar + contenido).
+ * @file layout.css
+ *
+ * Diseño editable:
+ * - main: display flex, gap entre sidebar y contenido, align-items.
+ * Ajustar gap y alineación según necesidad.
+ */
+
 /* ── Layout ── */
 main { display: flex; gap: 1.5rem; align-items: flex-start; }

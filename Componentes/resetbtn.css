@@ -1,3 +1,12 @@
+/**
+ * Botón "filtros" del sidebar (reset de filtros).
+ * @file resetbtn.css
+ *
+ * Diseño editable:
+ * - #resetBtn: font-size, height, padding, border-radius, border, background, backdrop-filter, color, transition.
+ * - :hover (background, color). html.dark #resetBtn y :hover para modo oscuro.
+ */
+
 /* Reset button */
 #resetBtn {
     font-family: inherit;

@@ -2,6 +2,14 @@
  * TaskFlow — Lista de tareas con filtros, tema claro/oscuro y persistencia en localStorage.
  *
  * Estructura: Constantes → DOM → Storage → Formulario → Fechas → DOM helpers → Tarjetas → Filtros → Estado → Boot
+ *
+ * @file app.js
+ * @description Lógica principal: tareas, tarjetas, filtros, modo selección, barra de progreso, tema.
+ *
+ * Diseño editable desde otros archivos (no aquí):
+ * - Categorías/prioridades/estados: TASK_CATEGORIES, TASK_PRIORITIES, TASK_STATUSES (textos y valores).
+ * - Colores y aspecto de la UI: Componentes/*.css (card.css, maincnt.css, sidebar.css, etc.).
+ * - Estructura HTML: index.html (clases e ids deben coincidir con los usados en este archivo).
  */
 
 /**

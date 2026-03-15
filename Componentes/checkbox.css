@@ -1,3 +1,17 @@
+/**
+ * Checkboxes: filtros del sidebar y checkbox de las tarjetas (modo selección).
+ * @file checkbox.css
+ *
+ * Diseño editable:
+ * - Checkbox genérico: .checkbox (width, height, border, border-radius, --chk-color);
+ *   .checkbox:before (marca interna: tamaño, border-radius, transition).
+ * - Etiquetas: .checkbox-label (font-size, color, padding, hover).
+ * - Colores por valor (filtros): .checkbox[value="Trabajo"], Estudio, Personal, Otro (--chk-color);
+ *   .checkbox[value="Alto"], Medio, Bajo; .checkbox[value="Pendiente"], "En progreso", "Completada".
+ * - Colores texto Estado en sidebar: .filter-sta-pendiente, .filter-sta-progreso, .filter-sta-completada
+ *   (color y hover); variantes html.dark.
+ */
+
 /* ── Checkboxes ── */
 .checkbox {
     appearance: none;

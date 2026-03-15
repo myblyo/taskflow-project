@@ -1,3 +1,13 @@
+/**
+ * Toggle de tema claro/oscuro (checkbox estilizado como interruptor).
+ * @file themebox.css
+ *
+ * Diseño editable:
+ * - .theme-checkbox: --toggle-size, width, height, background (gradiente), border-radius, transition.
+ * - .theme-checkbox::before (círculo deslizante: tamaño, posición, gradiente).
+ * - .theme-checkbox:checked (background-position) y ::before (left, background-position).
+ * Cambiar colores del gradiente para personalizar aspecto claro/oscuro del control.
+ */
 
     .theme-checkbox {
     --toggle-size: 16px;
