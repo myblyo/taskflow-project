@@ -13,10 +13,13 @@
  * @property {string} priority
  * @property {string} dueDate - Formato dd-mm-aaaa
  * @property {boolean} completed
+ * @property {'Pendiente'|'En progreso'|'Completada'} [status] - Estado de la tarea (si falta se deriva de completed).
  */
 
 // ── Constants ──
 const PRIORITY_CLASS_MAP = { Alto: 'badge-alto', Medio: 'badge-medio', Bajo: 'badge-bajo' };
+const TASK_STATUSES = ['Pendiente', 'En progreso', 'Completada'];
+const STATUS_CLASS_MAP = { 'Pendiente': 'badge-status-pendiente', 'En progreso': 'badge-status-progreso', 'Completada': 'badge-status-completada' };
 const TASK_CATEGORIES = ['Trabajo', 'Estudio', 'Personal', 'Otro'];
 const TASK_PRIORITIES = ['Alto', 'Medio', 'Bajo'];
 const MAX_TITLE_LENGTH = 80;
@@ -180,7 +183,8 @@ function buildTaskFromForm() {
         category: getFormValue('category-select'),
         priority: getFormValue('priority-select'),
         dueDate: getFormValue('task-date'),
-        completed: false
+        completed: false,
+        status: 'Pendiente'
     };
 }
 
@@ -198,11 +202,12 @@ function validateTask(task) {
 }
 
 /**
- * Devuelve la etiqueta de estado usada en los filtros: "Pendiente" o "Completada" según task.completed.
+ * Devuelve la etiqueta de estado usada en los filtros (Pendiente, En progreso, Completada).
  * @param {Task} task - Tarea de la que obtener el estado.
- * @returns {'Pendiente'|'Completada'}
+ * @returns {'Pendiente'|'En progreso'|'Completada'}
  */
 function getTaskStatusLabel(task) {
+    if (task.status && TASK_STATUSES.includes(task.status)) return task.status;
     return task.completed ? 'Completada' : 'Pendiente';
 }
 
@@ -270,6 +275,14 @@ function updateCardContent(card, task) {
     setCardDatasets(card, task);
     const label = card.querySelector('.task-title label');
     if (label && label.lastChild) label.lastChild.textContent = task.title;
+    const statusTrigger = card.querySelector('.card-status-wrap button.badge-status');
+    if (statusTrigger) {
+        const statusLabel = getTaskStatusLabel(task);
+        statusTrigger.textContent = statusLabel;
+        statusTrigger.className = 'badge badge-status ' + (STATUS_CLASS_MAP[statusLabel] || 'badge-status-pendiente');
+    }
+    const cardCheckbox = card.querySelector('.task-checkbox');
+    if (cardCheckbox) cardCheckbox.checked = task.completed;
     const card2 = card.querySelector('.card2');
     const titleRow = card2?.querySelector('.task-title');
     const descEl = card2?.querySelector('.task-description');
@@ -312,6 +325,9 @@ function openEditModal(task, card) {
             <select id="edit-priority">
                 ${TASK_PRIORITIES.map(p => `<option value="${escapeAttr(p)}" ${p === task.priority ? 'selected' : ''}>${escapeAttr(p)}</option>`).join('')}
             </select>
+            <select id="edit-status">
+                ${TASK_STATUSES.map(s => `<option value="${escapeAttr(s)}" ${s === getTaskStatusLabel(task) ? 'selected' : ''}>${escapeAttr(s)}</option>`).join('')}
+            </select>
         </div>
         <div class="row">
             <input type="text" id="edit-task-desc" class="flex-1" placeholder="Descripción (opcional)" value="${escapeAttr(task.description || '')}" maxlength="${MAX_DESCRIPTION_LENGTH}">
@@ -329,6 +345,7 @@ function openEditModal(task, card) {
     const descEl = modal.querySelector('#edit-task-desc');
     const categoryEl = modal.querySelector('#edit-category');
     const priorityEl = modal.querySelector('#edit-priority');
+    const statusEl = modal.querySelector('#edit-status');
     const dateEl = modal.querySelector('#edit-task-date');
 
     function closeModal() {
@@ -344,6 +361,7 @@ function openEditModal(task, card) {
 
     overlay.querySelector('.modal-cancel').addEventListener('click', closeModal);
     overlay.querySelector('.modal-save').addEventListener('click', () => {
+        const newStatus = (statusEl && statusEl.value && TASK_STATUSES.includes(statusEl.value)) ? statusEl.value : getTaskStatusLabel(task);
         const updated = {
             id: task.id,
             title: (titleEl && titleEl.value) ? titleEl.value.trim() : '',
@@ -351,7 +369,8 @@ function openEditModal(task, card) {
             category: (categoryEl && categoryEl.value) ? categoryEl.value : '',
             priority: (priorityEl && priorityEl.value) ? priorityEl.value : '',
             dueDate: (dateEl && dateEl.value) ? dateEl.value.trim() : '',
-            completed: task.completed
+            completed: (newStatus === 'Completada'),
+            status: newStatus
         };
         const err = validateTask(updated);
         if (err) {
@@ -414,6 +433,23 @@ function renderTaskCard(task) {
     titleRow.appendChild(label);
     topRow.appendChild(titleRow);
 
+    const statusLabel = getTaskStatusLabel(task);
+    const statusWrap = createElement('div', 'card-status-wrap');
+    const statusTrigger = createElement('button', ['badge', 'badge-status', STATUS_CLASS_MAP[statusLabel] || 'badge-status-pendiente']);
+    statusTrigger.type = 'button';
+    statusTrigger.setAttribute('aria-label', 'Cambiar estado');
+    statusTrigger.textContent = statusLabel;
+    const statusDropdown = createElement('div', 'card-dropdown');
+    TASK_STATUSES.forEach(s => {
+        const opt = createElement('button', 'card-dropdown-option');
+        opt.type = 'button';
+        opt.textContent = s;
+        opt.dataset.status = s;
+        statusDropdown.appendChild(opt);
+    });
+    statusWrap.append(statusTrigger, statusDropdown);
+    topRow.appendChild(statusWrap);
+
     const menu = createElement('div', 'card-menu');
     const menuBtn = createElement('button', 'card-menu-btn');
     menuBtn.type = 'button';
@@ -441,6 +477,38 @@ function renderTaskCard(task) {
     const meta = createTaskMeta(task);
     cardInner.appendChild(meta);
     card.appendChild(cardInner);
+
+    statusTrigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const wasOpen = statusDropdown.classList.contains('is-open');
+        closeAllCardDropdowns();
+        if (!wasOpen) {
+            statusDropdown.classList.add('is-open');
+            const closeOnOutside = () => {
+                closeAllCardDropdowns();
+                document.removeEventListener('click', closeOnOutside);
+            };
+            setTimeout(() => document.addEventListener('click', closeOnOutside), 0);
+        }
+    });
+    statusDropdown.querySelectorAll('.card-dropdown-option').forEach(opt => {
+        opt.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const newStatus = opt.dataset.status;
+            if (!newStatus || !TASK_STATUSES.includes(newStatus)) return;
+            const target = tasks.find(t => t.id === task.id);
+            if (!target) return;
+            target.status = newStatus;
+            target.completed = (newStatus === 'Completada');
+            statusDropdown.classList.remove('is-open');
+            statusTrigger.textContent = newStatus;
+            statusTrigger.className = 'badge badge-status ' + (STATUS_CLASS_MAP[newStatus] || 'badge-status-pendiente');
+            checkbox.checked = target.completed;
+            setCardDatasets(card, target);
+            saveTasks(tasks);
+            applyFilters();
+        });
+    });
 
     menuBtn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -470,7 +538,10 @@ function renderTaskCard(task) {
         const target = tasks.find(t => t.id === task.id);
         if (!target) return;
         target.completed = checkbox.checked;
+        target.status = target.completed ? 'Completada' : 'Pendiente';
         card.dataset.status = getTaskStatusLabel(target);
+        statusTrigger.textContent = target.status;
+        statusTrigger.className = 'badge badge-status ' + (STATUS_CLASS_MAP[target.status] || 'badge-status-pendiente');
         saveTasks(tasks);
         applyFilters();
     });
@@ -527,6 +598,14 @@ function initFilters() {
 // ── State ──
 /** @type {Task[]} */
 let tasks = safeLoadJson('tasks', []);
+
+// Normalizar tareas antiguas: asegurar status y completado coherentes
+tasks.forEach(t => {
+    if (!t.status || !TASK_STATUSES.includes(t.status)) {
+        t.status = t.completed ? 'Completada' : 'Pendiente';
+    }
+    t.completed = (t.status === 'Completada');
+});
 
 let nextTaskIdValue = tasks.length ? Math.max(...tasks.map(t => t.id)) + 1 : 1;
 

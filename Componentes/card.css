@@ -1,8 +1,13 @@
 
 .card-task {
+    position: relative;
+    z-index: 1;
     border-radius: 16px;
     overflow: visible;
     transition: box-shadow 0.25s, transform 0.15s;
+}
+.card-task:has(.card-dropdown.is-open) {
+    z-index: 25;
 }
 .card-task:hover { box-shadow: 0 0 28px rgba(0,0,0,0.18); }
 
@@ -19,6 +24,42 @@
     margin-bottom: 6px;
 }
 .card2-top .task-title { margin-bottom: 0; flex: 1; min-width: 0; }
+
+.card-status-wrap {
+    position: relative;
+    flex-shrink: 0;
+    display: flex;
+    align-items: flex-start;
+}
+.card-status-wrap .badge {
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 2px 10px;
+    border-radius: 999px;
+    transition: opacity 0.2s, transform 0.1s;
+}
+.card-status-wrap .badge:hover {
+    opacity: 0.9;
+}
+.card-status-wrap .card-dropdown {
+    left: 0;
+    right: auto;
+    min-width: 130px;
+    z-index: 50;
+}
+
+/* Estado: mismo diseño que categoría y prioridad en la card */
+.badge-status-pendiente { background: rgba(100,120,220,0.20); color: #4f6adb; border: 1px solid rgba(100,120,220,0.25); }
+.badge-status-progreso  { background: rgba(200,160,0,0.18);  color: #a07800; border: 1px solid rgba(200,160,0,0.25); }
+.badge-status-completada { background: rgba(0,160,70,0.15);  color: #007a38; border: 1px solid rgba(0,160,70,0.2); }
+html.dark .badge-status-pendiente  { color: #a5b4fc; border-color: rgba(165,180,252,0.25); }
+html.dark .badge-status-progreso   { color: #fcd34d; border-color: rgba(220,180,0,0.25); }
+html.dark .badge-status-completada { color: #86efac; border-color: rgba(50,200,100,0.25); }
+
 .card-menu {
     position: relative;
     flex-shrink: 0;

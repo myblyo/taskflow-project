@@ -53,3 +53,22 @@ html.dark .checkbox-label:hover { color: #fff; }
 .checkbox[value="Alto"]  { --chk-color: #b23a48; }
 .checkbox[value="Medio"] { --chk-color: #f4d58d; }
 .checkbox[value="Bajo"]  { --chk-color: #708d81; }
+
+/* Estado colors (igual que badges en la card) */
+.checkbox[value="Pendiente"]    { --chk-color: #4f6adb; }
+.checkbox[value="En progreso"] { --chk-color: #a07800; }
+.checkbox[value="Completada"]  { --chk-color: #007a38; }
+
+/* Etiquetas Estado en sidebar: mismos colores que la card */
+.filter-sta-pendiente   { color: #4f6adb; }
+.filter-sta-progreso    { color: #a07800; }
+.filter-sta-completada  { color: #007a38; }
+.filter-sta-pendiente:hover   { color: #3d5bc9; }
+.filter-sta-progreso:hover    { color: #806000; }
+.filter-sta-completada:hover  { color: #00602d; }
+html.dark .filter-sta-pendiente   { color: #a5b4fc; }
+html.dark .filter-sta-progreso   { color: #fcd34d; }
+html.dark .filter-sta-completada { color: #86efac; }
+html.dark .filter-sta-pendiente:hover   { color: #c7d2fe; }
+html.dark .filter-sta-progreso:hover    { color: #fde68a; }
+html.dark .filter-sta-completada:hover  { color: #bbf7d0; }
