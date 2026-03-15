@@ -157,6 +157,18 @@ function getFormValue(id) {
 }
 
 // ── Date validation ──
+/**
+ * Formatea una cadena de solo dígitos a dd-mm-yyyy (máx. 8 dígitos). El usuario solo escribe números.
+ * @param {string} str - Valor actual del input (puede llevar guiones o solo números).
+ * @returns {string} Cadena formateada tipo "dd-mm-yyyy" o incompleta "dd", "dd-mm", etc.
+ */
+function formatDateInputFromDigits(str) {
+    const digits = (String(str || '').replace(/\D/g, '')).slice(0, 8);
+    if (digits.length <= 2) return digits;
+    if (digits.length <= 4) return digits.slice(0, 2) + '-' + digits.slice(2);
+    return digits.slice(0, 2) + '-' + digits.slice(2, 4) + '-' + digits.slice(4);
+}
+
 function parseUserDate(dateString) {
     const match = /^(\d{2})-(\d{2})-(\d{4})$/.exec(dateString);
     if (!match) return null;
@@ -351,7 +363,7 @@ function openEditModal(task, card) {
         </div>
         <div class="row">
             <input type="text" id="edit-task-desc" class="flex-1" placeholder="Descripción (opcional)" value="${escapeAttr(task.description || '')}" maxlength="${MAX_DESCRIPTION_LENGTH}">
-            <input type="text" id="edit-task-date" placeholder="dd-mm-aaaa" value="${escapeAttr(task.dueDate)}">
+            <input type="text" id="edit-task-date" placeholder="DDMMAAAA (solo números)" value="${escapeAttr(task.dueDate)}">
         </div>
         <div class="modal-actions">
             <button type="button" class="btn-secondary modal-cancel">Cancelar</button>
@@ -367,6 +379,7 @@ function openEditModal(task, card) {
     const priorityEl = modal.querySelector('#edit-priority');
     const statusEl = modal.querySelector('#edit-status');
     const dateEl = modal.querySelector('#edit-task-date');
+    bindDateInputFormat(dateEl);
 
     function closeModal() {
         overlay.setAttribute('aria-hidden', 'true');
@@ -628,6 +641,18 @@ function initFilters() {
     }
 }
 
+/**
+ * Hace que un input de fecha solo requiera escribir números; formatea automáticamente a dd-mm-yyyy.
+ * @param {HTMLInputElement} inputEl - Input con id task-date o edit-task-date.
+ * @returns {void}
+ */
+function bindDateInputFormat(inputEl) {
+    if (!inputEl) return;
+    inputEl.addEventListener('input', () => {
+        inputEl.value = formatDateInputFromDigits(inputEl.value);
+    });
+}
+
 // ── State ──
 /** @type {Task[]} */
 let tasks = safeLoadJson('tasks', []);
@@ -735,6 +760,7 @@ function deleteSelectedTasks() {
 // ── Boot ──
 initTheme();
 initFilters();
+bindDateInputFormat(document.getElementById('task-date'));
 tasks.forEach(renderTaskCard);
 updateProgress();
 
