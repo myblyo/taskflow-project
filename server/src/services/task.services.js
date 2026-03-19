@@ -1,24 +1,27 @@
 let tasks = [];
 
 /**
- * Retorna todas las tareas almacenadas.
+ * Retorna una copia de todas las tareas almacenadas.
  * @returns {Array} Lista de tareas.
  */
 function obtenerTodas() {
-    return tasks;
+    return [...tasks];
 }
 
 /**
  * Crea una nueva tarea y la agrega al array en memoria.
- * @param {Object} data - Datos de la tarea (ej: { title, description }).
+ * @param {{ title: string, description: string, completed?: boolean }} data
  * @returns {Object} La tarea creada.
  */
 function crearTarea(data) {
     const tarea = {
         id: Date.now().toString(),
-        ...data,
-        creadaEn: new Date().toISOString(),
+        title: data.title,
+        description: data.description,
+        completed: Boolean(data.completed),
+        creadaEn: new Date().toISOString()
     };
+
     tasks.push(tarea);
     return tarea;
 }
@@ -27,11 +30,10 @@ function crearTarea(data) {
  * Elimina una tarea por su ID.
  * @param {string} id - ID de la tarea a eliminar.
  * @returns {Object} La tarea eliminada.
- * @throws {Error} Si el  ID no existe → 'NOT_FOUND'.
+ * @throws {Error} Si el ID no existe -> 'NOT_FOUND'.
  */
 function eliminarTarea(id) {
-    const index = tasks.findIndex((t) => t.id === id);
-
+    const index = tasks.findIndex((tarea) => tarea.id === id);
     if (index === -1) {
         throw new Error('NOT_FOUND');
     }
@@ -43,5 +45,5 @@ function eliminarTarea(id) {
 module.exports = {
     obtenerTodas,
     crearTarea,
-    eliminarTarea,
+    eliminarTarea
 };
