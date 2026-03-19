@@ -1,14 +1,10 @@
-require("dotenv").config();
+require('dotenv').config();
 
-//Validaciones crítica
-if (!process.env.PORT) {
-    throw new Error("El puerto no esta definido");
-}
+const PORT = Number(process.env.PORT) || 3000;
+const NODE_ENV = process.env.NODE_ENV || 'development';
 
 module.exports = {
-    PORT: process.env.PORT || 3000,
-    DB_URL: process.env.DB_URL,
+    PORT,
+    NODE_ENV,
+    DB_URL: process.env.DB_URL || ''
 };
-
-//Carga variables del .env
-// Bloquea el sergidos si falta configuración
