@@ -19,6 +19,9 @@ app.use('/api/v1/tasks', taskRoutes);
  */
 app.use((err, req, res, next) => {
     console.error(err);
+    if (err.message === 'NOT_FOUND') {
+        return res.status(404).json({ error: 'Task not found.' });
+    }
     res.status(500).json({
         error: 'Internal server error'
     });
