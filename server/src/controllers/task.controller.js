@@ -2,57 +2,50 @@ const taskService = require('../services/task.services');
 
 //Crear una nueva tarea
 const crearTarea = async (req, res, next) => {
-    try {
-        const { title, description, completed } = req.body;
+    const { title, description } = req.body;
 
-        if (!title || !description) {
-            return res.status(400).json({
-                error: 'Title and description are required.'
-            });
-        }
-
-        if (completed !== undefined && typeof completed !== 'boolean') {
-            return res.status(400).json({
-                error: 'Completed must be a boolean value.'
-            });
-        }
-
-        const newTask = await taskService.crearTarea({ title, description, completed: completed ?? false });
-        res.status(201).json(newTask);
-    } catch (error) {
-        next(error);
+    // Validación
+    if (!title) {
+        return next(new Error('FALTA_TITULO')); // Pasar error al middleware de errores
     }
+
+    res.status(201).json({ message: 'Tarea creada exitosamente', data: { title, description }  });
 };
 
-const obtenerTodas = async (_req, res, next) => {
+//Obtener todas las tareas
+const obtenerTodas = async (req, res) => {
     try {
         const tasks = await taskService.obtenerTodas();
         res.status(200).json(tasks);
     } catch (error) {
-        next(error);
+        res.status(500).json({ error: 'An error occurred while fetching tasks' });
     }
 };
 
-const eliminarTarea = async (req, res, next) => {
+// Eliminar tarea
+const eliminarTarea = async (req, res) => {
     try {
         const { id } = req.params;
 
-        if (!id) {
-            return res.status(400).json({ error: 'Task ID is required.' });
+        //Validación
+        if (!id || isNaN(id)) {
+            return res.status(400).json({ error: 'Task ID is required' });
         }
 
+        // Llamar al servicio para eliminar la tarea
         const deletedTask = await taskService.eliminarTarea(id);
 
         if (!deletedTask) {
-            return res.status(404).json({ error: 'Task not found.' });
+            return res.status(404).json({ error: 'Task not found' });
         }
 
         res.status(204).send();
+
     } catch (error) {
         if (error.message === 'NOT_FOUND') {
-            return res.status(404).json({ error: 'Task not found.' });
+            return res.status(404).json({ error: 'Task not found' });
         }
-        next(error);
+        res.status(500).json({ error: 'An error occurred while deleting the task' });
     }
 };
 
