@@ -50,7 +50,9 @@ const crearTarea = async (req, res, next) => {
             completed: parsed.value
         });
 
-        // Respuesta clara para Postman: el id arriba para copiarlo al DELETE
+        // Cabecera para comprobar en Postman (pestaña Headers) que es esta API
+        res.set('X-TaskFlow-API', 'create-includes-id');
+
         res.status(201).json({
             message: 'Tarea creada. Copia el id para borrarla: DELETE /api/v1/tasks/:id',
             id: newTask.id,
