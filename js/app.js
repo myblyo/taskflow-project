@@ -1,5 +1,5 @@
 /**
- * TaskFlow — Lista de tareas con filtros, tema claro/oscuro y persistencia en localStorage.
+ * TaskFlow — Lista de tareas con filtros, tema claro/oscuro y datos desde API.
  *
  * Estructura: Constantes → DOM → Storage → Formulario → Fechas → DOM helpers → Tarjetas → Filtros → Estado → Boot
  *
@@ -11,10 +11,11 @@
  * - Colores y aspecto de la UI: Componentes/*.css (card.css, maincnt.css, sidebar.css, etc.).
  * - Estructura HTML: index.html (clases e ids deben coincidir con los usados en este archivo).
  */
+import { createTask, deleteTask, fetchTasks } from './api/client.js';
 
 /**
  * @typedef {Object} Task
- * @property {number} id
+ * @property {string|number} id
  * @property {string} title
  * @property {string} description
  * @property {string} category
@@ -67,46 +68,15 @@ function getFilterCheckboxes() {
     return filterCheckboxesCache;
 }
 
-// ── Storage ──
-/**
- * Lee un valor JSON de localStorage de forma segura. Si la key no existe o el parse falla, devuelve el fallback.
- * @param {string} key - Clave de localStorage.
- * @param {T} fallback - Valor a devolver si no hay datos o hay error.
- * @returns {T} El valor parseado o el fallback.
- * @template T
- */
-function safeLoadJson(key, fallback) {
-    try {
-        const raw = localStorage.getItem(key);
-        if (!raw) return fallback;
-        return /** @type {typeof fallback} */ (JSON.parse(raw));
-    } catch {
-        return fallback;
-    }
-}
-
-function safeSaveJson(key, value) {
-    try {
-        localStorage.setItem(key, JSON.stringify(value));
-        return true;
-    } catch {
-        return false;
-    }
-}
-
 // ── Theme ──
 /**
- * Inicializa el tema claro/oscuro: lee la preferencia guardada, aplica la clase .dark al html y enlaza el toggle.
+ * Inicializa el tema claro/oscuro de la sesión actual.
  * @returns {void}
  */
 function initTheme() {
-    const isDark = localStorage.getItem('theme') === 'dark';
-    html.classList.toggle('dark', isDark);
     if (!darkToggle) return;
-    darkToggle.checked = isDark;
     darkToggle.addEventListener('change', () => {
         html.classList.toggle('dark', darkToggle.checked);
-        safeSaveJson('theme', darkToggle.checked ? 'dark' : 'light');
     });
 }
 
@@ -144,6 +114,34 @@ function clearFormMessage(formEl) {
     if (!area) return;
     area.textContent = '';
     /** @type {HTMLElement} */ (area).style.display = 'none';
+}
+
+function ensureNetworkStateArea() {
+    if (!taskListElement || !taskListElement.parentElement) return null;
+    let area = document.getElementById('network-state');
+    if (area) return area;
+    area = createElement('div', 'form-message');
+    area.id = 'network-state';
+    area.setAttribute('role', 'status');
+    area.setAttribute('aria-live', 'polite');
+    area.style.display = 'none';
+    taskListElement.parentElement.insertBefore(area, taskListElement);
+    return area;
+}
+
+function showNetworkState(message, isError = false) {
+    const area = ensureNetworkStateArea();
+    if (!area) return;
+    area.textContent = message;
+    area.style.display = '';
+    area.style.color = isError ? '#b91c1c' : '';
+}
+
+function hideNetworkState() {
+    const area = document.getElementById('network-state');
+    if (!area) return;
+    area.textContent = '';
+    area.style.display = 'none';
 }
 
 /**
@@ -203,12 +201,11 @@ function isPastDate(dateString) {
 
 // ── Task form & validation ──
 /**
- * Construye un objeto Task a partir de los valores actuales del formulario. Asigna id con nextTaskId() y completed: false.
+ * Construye un objeto Task a partir de los valores actuales del formulario.
  * @returns {Task} Objeto tarea con los datos del formulario (strings vacíos si falta algún campo).
  */
 function buildTaskFromForm() {
     return {
-        id: nextTaskId(),
         title: getFormValue('task-title'),
         description: getFormValue('task-desc'),
         category: getFormValue('category-select'),
@@ -433,16 +430,22 @@ function escapeAttr(str) {
 }
 
 function removeTaskCard(card, taskId) {
-    selectedIds.delete(taskId);
-    updateDeleteSelectedState();
-    card.style.transition = 'opacity 0.2s, transform 0.2s';
-    card.style.opacity = '0';
-    card.style.transform = 'translateY(-8px)';
-    setTimeout(() => {
-        card.remove();
-        tasks = tasks.filter(t => t.id !== taskId);
-        saveTasks(tasks);
-    }, 200);
+    deleteTask(taskId)
+        .then(() => {
+            selectedIds.delete(taskId);
+            updateDeleteSelectedState();
+            card.style.transition = 'opacity 0.2s, transform 0.2s';
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(-8px)';
+            setTimeout(() => {
+                card.remove();
+                tasks = tasks.filter(t => t.id !== taskId);
+                saveTasks(tasks);
+            }, 200);
+        })
+        .catch((error) => {
+            showNetworkState(error.message || 'No se pudo eliminar la tarea.', true);
+        });
 }
 
 /**
@@ -655,33 +658,15 @@ function bindDateInputFormat(inputEl) {
 
 // ── State ──
 /** @type {Task[]} */
-let tasks = safeLoadJson('tasks', []);
-
-// Normalizar tareas antiguas: asegurar status y completado coherentes
-tasks.forEach(t => {
-    if (!t.status || !TASK_STATUSES.includes(t.status)) {
-        t.status = t.completed ? 'Completada' : 'Pendiente';
-    }
-    t.completed = (t.status === 'Completada');
-});
-
-let nextTaskIdValue = tasks.length ? Math.max(...tasks.map(t => t.id)) + 1 : 1;
+let tasks = [];
 
 /**
- * Genera un id único para una nueva tarea (incremento sobre el máximo id existente) para evitar colisiones.
- * @returns {number} Nuevo id numérico único.
- */
-function nextTaskId() {
-    return nextTaskIdValue++;
-}
-
-/**
- * Persiste el array de tareas en localStorage bajo la clave 'tasks'. No notifica si falla el guardado.
+ * Mantiene estado y actualiza el progreso visual.
  * @param {Task[]} taskList - Array de tareas a guardar.
  * @returns {void}
  */
 function saveTasks(taskList) {
-    safeSaveJson('tasks', taskList);
+    tasks = taskList;
     updateProgress();
 }
 
@@ -740,29 +725,46 @@ function updateDeleteSelectedState() {
 function deleteSelectedTasks() {
     if (selectedIds.size === 0) return;
     const idsToRemove = new Set(selectedIds);
-    const cardsToRemove = [...document.querySelectorAll('.card-task')].filter(card => idsToRemove.has(Number(card.dataset.id)));
-    cardsToRemove.forEach(card => {
-        card.style.transition = 'opacity 0.2s, transform 0.2s';
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(-8px)';
-    });
-    setTimeout(() => {
-        cardsToRemove.forEach(card => card.remove());
-        const before = tasks.length;
-        tasks = tasks.filter(t => !idsToRemove.has(t.id));
-        selectedIds.clear();
-        saveTasks(tasks);
-        updateProgress();
-        setSelectMode(false);
-    }, 200);
+    Promise.allSettled([...idsToRemove].map((id) => deleteTask(id)))
+        .then((results) => {
+            const failed = results.filter((result) => result.status === 'rejected').length;
+            if (failed > 0) {
+                showNetworkState(`No se pudieron eliminar ${failed} tarea(s).`, true);
+            } else {
+                hideNetworkState();
+            }
+            tasks = tasks.filter(t => !idsToRemove.has(String(t.id)));
+            selectedIds.clear();
+            document.querySelectorAll('.card-task').forEach((card) => {
+                if (idsToRemove.has(card.dataset.id || '')) card.remove();
+            });
+            saveTasks(tasks);
+            setSelectMode(false);
+        });
 }
 
 // ── Boot ──
 initTheme();
 initFilters();
 bindDateInputFormat(document.getElementById('task-date'));
-tasks.forEach(renderTaskCard);
-updateProgress();
+showNetworkState('Cargando tareas...');
+fetchTasks()
+    .then((serverTasks) => {
+        hideNetworkState();
+        tasks = serverTasks.map((task) => ({
+            ...task,
+            category: task.category || 'Otro',
+            priority: task.priority || 'Medio',
+            dueDate: task.dueDate || '01-01-2099',
+            status: task.completed ? 'Completada' : 'Pendiente'
+        }));
+        tasks.forEach(renderTaskCard);
+        updateProgress();
+    })
+    .catch((error) => {
+        showNetworkState(`Error al cargar tareas: ${error.message}`, true);
+        updateProgress();
+    });
 
 if (selectModeBtn) {
     selectModeBtn.addEventListener('click', () => setSelectMode(!isSelectMode));
@@ -772,7 +774,7 @@ if (deleteSelectedBtn) {
 }
 
 if (taskForm) {
-    taskForm.addEventListener('submit', (e) => {
+    taskForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         clearFormMessage(taskForm);
         const task = buildTaskFromForm();
@@ -781,9 +783,30 @@ if (taskForm) {
             showFormError(taskForm, error);
             return;
         }
-        tasks.push(task);
-        saveTasks(tasks);
-        renderTaskCard(task);
-        taskForm.reset();
+        showNetworkState('Guardando tarea...');
+        try {
+            const created = await createTask({
+                title: task.title,
+                description: task.description,
+                completed: false,
+                category: task.category,
+                priority: task.priority,
+                dueDate: task.dueDate
+            });
+            hideNetworkState();
+            const normalized = {
+                ...created,
+                category: created.category || task.category || 'Otro',
+                priority: created.priority || task.priority || 'Medio',
+                dueDate: created.dueDate || task.dueDate || '01-01-2099',
+                status: created.completed ? 'Completada' : 'Pendiente'
+            };
+            tasks.push(normalized);
+            saveTasks(tasks);
+            renderTaskCard(normalized);
+            taskForm.reset();
+        } catch (error) {
+            showNetworkState(`Error al crear tarea: ${error.message}`, true);
+        }
     });
 }

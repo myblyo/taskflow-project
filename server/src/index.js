@@ -18,10 +18,29 @@ app.use('/api/v1/tasks', taskRoutes);
  * Captura errores pasados con next(err) desde rutas/controladores.
  */
 app.use((err, req, res, next) => {
-    console.error(err);
+    // 404n -> Ruta no encontrada
     if (err.message === 'NOT_FOUND') {
-        return res.status(404).json({ error: 'Task not found.' });
+        return res.status(404).json({
+            error: 'Recurso no encontrado'
+        });
     }
+
+    //400 -> Error de validación o datos incorrectos
+    if (err.message === 'VALIDATION_ERROR') {
+        return res.status(400).json({
+            error: 'Datos de entrada no válidos'
+        });
+    }
+
+    //Otros errores específicos pueden manejarse aquí con más condiciones...
+    if (err.message === 'FALTA_TITULO') {
+        return res.status(400).json({
+            error: 'El título es requerido'
+        });
+    }
+
+    //* Error inesperado o no manejado -> 500 Internal Server Error
+    console.error(err);
     res.status(500).json({
         error: 'Internal server error'
     });
