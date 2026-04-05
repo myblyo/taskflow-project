@@ -1,4 +1,20 @@
-const API_BASE_URL = 'http://localhost:3000/api/v1/tasks';
+/**
+ * En Vercel u otro HTTPS: mismo origen (/api/v1/tasks). En local con front en otro puerto: backend :3000.
+ * @returns {string}
+ */
+function getApiBaseUrl() {
+    if (typeof window === 'undefined') return 'http://localhost:3000/api/v1/tasks';
+    const { protocol, hostname, port } = window.location;
+    if (protocol === 'file:') return 'http://localhost:3000/api/v1/tasks';
+    const p = String(port || '');
+    const local = hostname === 'localhost' || hostname === '127.0.0.1';
+    if (local && p && p !== '3000') {
+        return 'http://localhost:3000/api/v1/tasks';
+    }
+    return `${window.location.origin}/api/v1/tasks`;
+}
+
+const API_BASE_URL = getApiBaseUrl();
 
 async function request(url, options = {}) {
     let response;
@@ -6,7 +22,7 @@ async function request(url, options = {}) {
         response = await fetch(url, options);
     } catch (e) {
         const err = new Error(
-            'No se pudo conectar con el servidor. Arranca el backend (puerto 3000) y recarga la página.'
+            'No se pudo conectar con el servidor. En local, arranca el backend (puerto 3000); en producción, comprueba el despliegue.'
         );
         err.cause = e;
         throw err;
