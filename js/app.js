@@ -1,7 +1,7 @@
 /**
  * TaskFlow — Lista de tareas con filtros, tema claro/oscuro y datos desde API.
  *
- * Estructura: Constantes → DOM → Storage → Formulario → Fechas → DOM helpers → Tarjetas → Filtros → Estado → Boot
+ * Estructura: Constantes → DOM → Formulario → Fechas → DOM helpers → Tarjetas → Filtros → Estado (memoria + API) → Boot
  *
  * @file app.js
  * @description Lógica principal: tareas, tarjetas, filtros, modo selección, barra de progreso, tema.
@@ -11,7 +11,7 @@
  * - Colores y aspecto de la UI: Componentes/*.css (card.css, maincnt.css, sidebar.css, etc.).
  * - Estructura HTML: index.html (clases e ids deben coincidir con los usados en este archivo).
  */
-import { createTask, deleteTask, fetchTasks } from './api/client.js';
+import { createTask, deleteTask, fetchTasks, updateTask } from './api/client.js';
 
 /**
  * @typedef {Object} Task
@@ -257,6 +257,21 @@ function getTaskStatusLabel(task) {
     return task.completed ? 'Completada' : 'Pendiente';
 }
 
+/**
+ * Alinea una tarea devuelta por el API con lo que espera la UI.
+ * @param {Object} task
+ * @returns {Task}
+ */
+function normalizeTaskFromServer(task) {
+    return {
+        ...task,
+        category: task.category || 'Otro',
+        priority: task.priority || 'Medio',
+        dueDate: task.dueDate || '01-01-2099',
+        status: task.status || (task.completed ? 'Completada' : 'Pendiente')
+    };
+}
+
 // ── DOM helpers ──
 /**
  * Crea un elemento DOM con opcionalmente una o varias clases.
@@ -349,8 +364,8 @@ function updateCardContent(card, task) {
 }
 
 /**
- * Abre el modal de edición con los datos de la tarea. Al guardar, actualiza la tarea, la tarjeta y cierra el modal.
- * @param {Task} task - Tarea a editar (se modifica en el array tasks).
+ * Abre el modal de edición con los datos de la tarea. Al guardar, envía PATCH al API y refresca la tarjeta.
+ * @param {Task} task - Tarea a editar (se modifica en el array tasks tras respuesta OK).
  * @param {HTMLElement} card - Tarjeta asociada para refrescar su contenido.
  * @returns {void}
  */
@@ -408,7 +423,7 @@ function openEditModal(task, card) {
     }
 
     overlay.querySelector('.modal-cancel').addEventListener('click', closeModal);
-    overlay.querySelector('.modal-save').addEventListener('click', () => {
+    overlay.querySelector('.modal-save').addEventListener('click', async () => {
         const newStatus = (statusEl && statusEl.value && TASK_STATUSES.includes(statusEl.value)) ? statusEl.value : getTaskStatusLabel(task);
         const updated = {
             id: task.id,
@@ -425,10 +440,29 @@ function openEditModal(task, card) {
             if (msgEl) { msgEl.textContent = err; msgEl.style.display = ''; }
             return;
         }
-        Object.assign(task, updated);
-        saveTasks(tasks);
-        updateCardContent(card, task);
-        closeModal();
+        if (msgEl) { msgEl.textContent = ''; msgEl.style.display = 'none'; }
+        showNetworkState('Guardando cambios...');
+        try {
+            const serverTask = await updateTask(task.id, {
+                title: updated.title,
+                description: updated.description,
+                category: updated.category,
+                priority: updated.priority,
+                dueDate: updated.dueDate,
+                completed: updated.completed,
+                status: updated.status
+            });
+            Object.assign(task, normalizeTaskFromServer(serverTask));
+            setTasks(tasks);
+            updateCardContent(card, task);
+            hideNetworkState();
+            closeModal();
+        } catch (error) {
+            hideNetworkState();
+            const m = error.message || 'No se pudo guardar.';
+            showNetworkState(m, true);
+            if (msgEl) { msgEl.textContent = m; msgEl.style.display = ''; }
+        }
     });
 
     document.body.appendChild(overlay);
@@ -458,7 +492,7 @@ function removeTaskCard(card, taskId) {
             setTimeout(() => {
                 card.remove();
                 tasks = tasks.filter(t => t.id !== taskId);
-                saveTasks(tasks);
+                setTasks(tasks);
             }, 200);
         })
         .catch((error) => {
@@ -549,12 +583,13 @@ function renderTaskCard(task) {
         }
     });
     statusDropdown.querySelectorAll('.card-dropdown-option').forEach(opt => {
-        opt.addEventListener('click', (e) => {
+        opt.addEventListener('click', async (e) => {
             e.stopPropagation();
             const newStatus = opt.dataset.status;
             if (!newStatus || !TASK_STATUSES.includes(newStatus)) return;
             const target = tasks.find(t => t.id === task.id);
             if (!target) return;
+            const prev = { status: target.status, completed: target.completed };
             target.status = newStatus;
             target.completed = (newStatus === 'Completada');
             statusDropdown.classList.remove('is-open');
@@ -563,7 +598,25 @@ function renderTaskCard(task) {
             checkbox.checked = target.completed;
             titleRow.classList.toggle('is-completed', target.completed);
             setCardDatasets(card, target);
-            saveTasks(tasks);
+            try {
+                const serverTask = await updateTask(target.id, { status: newStatus, completed: target.completed });
+                Object.assign(target, normalizeTaskFromServer(serverTask));
+                statusTrigger.textContent = getTaskStatusLabel(target);
+                statusTrigger.className = 'badge badge-status ' + (STATUS_CLASS_MAP[getTaskStatusLabel(target)] || 'badge-status-pendiente');
+                checkbox.checked = target.completed;
+                titleRow.classList.toggle('is-completed', target.completed);
+                setCardDatasets(card, target);
+                setTasks(tasks);
+            } catch (err) {
+                target.status = prev.status;
+                target.completed = prev.completed;
+                statusTrigger.textContent = getTaskStatusLabel(target);
+                statusTrigger.className = 'badge badge-status ' + (STATUS_CLASS_MAP[prev.status] || 'badge-status-pendiente');
+                checkbox.checked = prev.completed;
+                titleRow.classList.toggle('is-completed', prev.completed);
+                setCardDatasets(card, target);
+                showNetworkState(err.message || 'No se pudo actualizar el estado.', true);
+            }
             applyFilters();
         });
     });
@@ -592,7 +645,7 @@ function renderTaskCard(task) {
         removeTaskCard(card, task.id);
     });
 
-    checkbox.addEventListener('change', () => {
+    checkbox.addEventListener('change', async () => {
         if (isSelectMode) {
             const id = task.id;
             if (selectedIds.has(id)) selectedIds.delete(id);
@@ -603,13 +656,31 @@ function renderTaskCard(task) {
         }
         const target = tasks.find(t => t.id === task.id);
         if (!target) return;
+        const prev = { completed: target.completed, status: target.status };
         target.completed = checkbox.checked;
         target.status = target.completed ? 'Completada' : 'Pendiente';
         card.dataset.status = getTaskStatusLabel(target);
         statusTrigger.textContent = target.status;
         statusTrigger.className = 'badge badge-status ' + (STATUS_CLASS_MAP[target.status] || 'badge-status-pendiente');
         titleRow.classList.toggle('is-completed', target.completed);
-        saveTasks(tasks);
+        try {
+            const serverTask = await updateTask(target.id, { completed: target.completed, status: target.status });
+            Object.assign(target, normalizeTaskFromServer(serverTask));
+            statusTrigger.textContent = getTaskStatusLabel(target);
+            statusTrigger.className = 'badge badge-status ' + (STATUS_CLASS_MAP[getTaskStatusLabel(target)] || 'badge-status-pendiente');
+            titleRow.classList.toggle('is-completed', target.completed);
+            setCardDatasets(card, target);
+            setTasks(tasks);
+        } catch (err) {
+            target.completed = prev.completed;
+            target.status = prev.status;
+            checkbox.checked = prev.completed;
+            statusTrigger.textContent = getTaskStatusLabel(target);
+            statusTrigger.className = 'badge badge-status ' + (STATUS_CLASS_MAP[getTaskStatusLabel(target)] || 'badge-status-pendiente');
+            titleRow.classList.toggle('is-completed', prev.completed);
+            setCardDatasets(card, target);
+            showNetworkState(err.message || 'No se pudo actualizar la tarea.', true);
+        }
         applyFilters();
     });
 
@@ -689,11 +760,11 @@ function bindDateInputFormat(inputEl) {
 let tasks = [];
 
 /**
- * Mantiene estado y actualiza el progreso visual.
- * @param {Task[]} taskList - Array de tareas a guardar.
+ * Sincroniza el array en memoria con la UI (la persistencia es solo en el servidor).
+ * @param {Task[]} taskList - Lista de tareas actual.
  * @returns {void}
  */
-function saveTasks(taskList) {
+function setTasks(taskList) {
     tasks = taskList;
     updateProgress();
 }
@@ -766,7 +837,7 @@ function deleteSelectedTasks() {
             document.querySelectorAll('.card-task').forEach((card) => {
                 if (idsToRemove.has(card.dataset.id || '')) card.remove();
             });
-            saveTasks(tasks);
+            setTasks(tasks);
             setSelectMode(false);
         });
 }
@@ -779,13 +850,7 @@ showNetworkState('Cargando tareas...');
 fetchTasks()
     .then((serverTasks) => {
         hideNetworkState();
-        tasks = serverTasks.map((task) => ({
-            ...task,
-            category: task.category || 'Otro',
-            priority: task.priority || 'Medio',
-            dueDate: task.dueDate || '01-01-2099',
-            status: task.completed ? 'Completada' : 'Pendiente'
-        }));
+        tasks = serverTasks.map(normalizeTaskFromServer);
         tasks.forEach(renderTaskCard);
         updateProgress();
     })
@@ -822,15 +887,9 @@ if (taskForm) {
                 dueDate: task.dueDate
             });
             hideNetworkState();
-            const normalized = {
-                ...created,
-                category: created.category || task.category || 'Otro',
-                priority: created.priority || task.priority || 'Medio',
-                dueDate: created.dueDate || task.dueDate || '01-01-2099',
-                status: created.completed ? 'Completada' : 'Pendiente'
-            };
+            const normalized = normalizeTaskFromServer(created);
             tasks.push(normalized);
-            saveTasks(tasks);
+            setTasks(tasks);
             renderTaskCard(normalized);
             taskForm.reset();
         } catch (error) {
