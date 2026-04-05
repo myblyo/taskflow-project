@@ -94,3 +94,8 @@ h1 {
     transition: color 0.3s;
 }
 html.dark h1 { color: rgba(230,232,255,0.95); }
+
+/* Tailwind (display:flex en el mismo nodo) anula el atributo HTML hidden; forzar oculto. */
+#task-list-loading[hidden] {
+    display: none !important;
+}
