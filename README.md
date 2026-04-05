@@ -1,17 +1,19 @@
 # TaskFlow — Lista de tareas
 
-Aplicación web de lista de tareas con filtros por categoría, prioridad y estado, tema claro/oscuro, barra de progreso y borrado múltiple. Los datos se guardan en `localStorage`.
+Aplicación web de lista de tareas con filtros por categoría, prioridad y estado, tema claro/oscuro, barra de progreso y borrado múltiple. Las tareas se obtienen y modifican mediante un **backend** (API REST en Node/Express; persistencia en memoria en el servidor).
 
 ---
 
 ## Estructura del proyecto
 
-| Archivo / carpeta       | Descripción |
-|-------------------------|-------------|
-| `index.html`            | Página principal: sidebar, formulario, lista de tarjetas, header |
-| `app.js`                | Lógica: tareas, tarjetas, filtros, modo selección, progreso, tema |
-| `Componentes/style.css` | Entrada de estilos (importa el resto de CSS) |
-| `Componentes/*.css`     | Estilos por módulo (card, form, glass, sidebar, etc.) |
+| Archivo / carpeta        | Descripción |
+|--------------------------|-------------|
+| `index.html`             | Página principal: sidebar, formulario, lista de tarjetas, header |
+| `js/app.js`              | Lógica: tareas, tarjetas, filtros, modo selección, progreso, tema |
+| `js/api/client.js`       | Cliente HTTP (`fetch`) hacia `/api/v1/tasks` |
+| `Componentes/style.css`  | Entrada de estilos (importa el resto de CSS) |
+| `Componentes/*.css`      | Estilos por módulo (card, form, glass, sidebar, etc.) |
+| `server/`                | Backend Express (ver sección *Arquitectura, carpetas y API*) |
 
 ---
 
@@ -85,4 +87,112 @@ Resumen por bloques. Detalles en los JSDoc del código.
 
 ## Modelo de datos (Task)
 
-Cada tarea tiene: `id`, `title`, `description`, `category`, `priority`, `dueDate` (dd-mm-aaaa), `completed` (boolean), `status` ('Pendiente' | 'En progreso' | 'Completada'). Se guardan en `localStorage` bajo la clave `'tasks'`.
+Cada tarea tiene: `id`, `title`, `description`, `category`, `priority`, `dueDate` (dd-mm-aaaa), `completed` (boolean), `status` ('Pendiente' | 'En progreso' | 'Completada'). La fuente de verdad es el **servidor**; el navegador mantiene una copia en memoria para la UI.
+
+---
+
+## Arquitectura, carpetas y API
+
+Marca cada ítem cuando lo hayas revisado o completado en el proyecto.
+
+- [ ] **Arquitectura por capas**
+
+  **Frontend (estático):** capa de presentación (`index.html` + `Componentes/*.css`) y capa de aplicación en el navegador (`js/app.js`: validación, DOM, estado en memoria). Las llamadas HTTP están aisladas en **`js/api/client.js`** (cliente de la API).
+
+  **Backend (`server/`):** patrón en capas típico de Express:
+  - **Rutas** (`src/routes/`) — definen método, path y delegan al controlador.
+  - **Controladores** (`src/controllers/`) — leen `req`, validan entrada básica, llaman al servicio y envían `res.json` / códigos HTTP.
+  - **Servicios** (`src/services/`) — lógica de negocio y acceso a datos (aquí un array en memoria).
+  - **Middlewares** (`src/middlewares/`) — p. ej. registro de peticiones.
+  - **Config** (`src/config/`) — variables de entorno (puerto).
+  - **`src/index.js`** — arranque de Express, CORS, JSON, prefijo `/api/v1/tasks`, middleware global de errores.
+
+  - [ ] **Estructura de carpetas**
+
+    | Ruta | Rol |
+    |------|-----|
+    | `index.html` | Entrada del front |
+    | `js/app.js` | Lógica de UI y estado |
+    | `js/api/client.js` | `fetch` hacia la API |
+    | `Componentes/*.css` | Estilos modulares |
+    | `server/src/index.js` | Servidor Express |
+    | `server/src/routes/task.routes.js` | Rutas REST de tareas |
+    | `server/src/controllers/task.controller.js` | Manejo HTTP por recurso |
+    | `server/src/services/task.services.js` | Persistencia en memoria |
+    | `server/src/middlewares/logger.js` | Logging |
+    | `server/src/config/env.js` | `PORT` (por defecto `3000`) |
+
+  - [ ] **Endpoints API**
+
+    Base URL (local): `http://localhost:3000/api/v1/tasks`
+
+    | Método | Ruta | Descripción |
+    |--------|------|-------------|
+    | `GET` | `/api/v1/tasks` | Lista todas las tareas |
+    | `POST` | `/api/v1/tasks` | Crea una tarea |
+    | `PATCH` | `/api/v1/tasks/:id` | Actualiza campos parciales |
+    | `DELETE` | `/api/v1/tasks/:id` | Elimina por `id` |
+
+    Cabeceras habituales en escritura: `Content-Type: application/json`. CORS habilitado para orígenes que consuman el API desde el navegador.
+
+  - [ ] **Ejemplos request / response**
+
+    **GET** `http://localhost:3000/api/v1/tasks`  
+    **Response** `200` — cuerpo: array JSON (puede ser `[]`).
+
+    ```json
+    [
+      {
+        "id": "1775402688432",
+        "title": "Comprar leche",
+        "description": "",
+        "completed": false,
+        "status": "Pendiente",
+        "category": "Personal",
+        "priority": "Medio",
+        "dueDate": "15-04-2026",
+        "creadaEn": "2026-04-05T15:24:48.432Z"
+      }
+    ]
+    ```
+
+    **POST** `http://localhost:3000/api/v1/tasks`  
+    **Body** (ejemplo):
+
+    ```json
+    {
+      "title": "Nueva tarea",
+      "description": "opcional",
+      "completed": false,
+      "category": "Trabajo",
+      "priority": "Alto",
+      "dueDate": "20-04-2026"
+    }
+    ```
+
+    **Response** `201` — objeto de la tarea creada (incluye `id`, `creadaEn`, etc.).  
+    **Response** `400` — `{ "error": "El título es obligatorio." }` (u otro mensaje de validación).
+
+    **PATCH** `http://localhost:3000/api/v1/tasks/1775402688432`  
+    **Body** (solo campos a cambiar):
+
+    ```json
+    {
+      "status": "Completada",
+      "completed": true
+    }
+    ```
+
+    **Response** `200` — tarea actualizada.  
+    **Response** `404` — `{ "error": "Task not found." }`
+
+    **DELETE** `http://localhost:3000/api/v1/tasks/1775402688432`  
+    **Response** `200` — `{ "message": "tarea eliminada" }`  
+    **Response** `404` — `{ "error": "Task not found." }`
+
+    **Probar desde terminal (curl):**
+
+    ```bash
+    curl -s http://localhost:3000/api/v1/tasks
+    curl -s -X POST http://localhost:3000/api/v1/tasks -H "Content-Type: application/json" -d "{\"title\":\"Demo\",\"description\":\"\"}"
+    ```
