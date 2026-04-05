@@ -7,7 +7,7 @@
   },
   "name": "lista-de-tareas",
   "version": "1.0.0",
-  "description": "Aplicación web de lista de tareas con filtros por categoría, prioridad y estado, tema claro/oscuro, barra de progreso y borrado múltiple. Los datos se guardan en `localStorage`.",
+  "description": "Backend Express para TaskFlow: API REST de tareas (GET, POST, PATCH, DELETE) en /api/v1/tasks; persistencia en memoria en el proceso del servidor.",
   "main": "index.js",
   "directories": {
     "doc": "docs"
