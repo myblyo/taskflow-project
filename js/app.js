@@ -144,6 +144,25 @@ function hideNetworkState() {
     area.style.display = 'none';
 }
 
+/** @type {HTMLElement | null} */
+const taskListLoadingEl = document.getElementById('task-list-loading');
+
+/**
+ * Muestra u oculta el bloque de carga (puntos + texto) sobre la lista de tareas.
+ * @param {boolean} visible
+ * @returns {void}
+ */
+function setTaskListLoading(visible) {
+    if (!taskListLoadingEl) return;
+    if (visible) {
+        taskListLoadingEl.removeAttribute('hidden');
+        if (taskListElement) taskListElement.setAttribute('aria-busy', 'true');
+    } else {
+        taskListLoadingEl.setAttribute('hidden', '');
+        if (taskListElement) taskListElement.removeAttribute('aria-busy');
+    }
+}
+
 /**
  * Obtiene el valor de un campo del formulario por su id. Devuelve cadena vacía si el elemento no existe.
  * @param {string} id - Id del elemento input/select.
@@ -846,15 +865,18 @@ function deleteSelectedTasks() {
 initTheme();
 initFilters();
 bindDateInputFormat(document.getElementById('task-date'));
-showNetworkState('Cargando tareas...');
+hideNetworkState();
+setTaskListLoading(true);
 fetchTasks()
     .then((serverTasks) => {
+        setTaskListLoading(false);
         hideNetworkState();
         tasks = serverTasks.map(normalizeTaskFromServer);
         tasks.forEach(renderTaskCard);
         updateProgress();
     })
     .catch((error) => {
+        setTaskListLoading(false);
         showNetworkState(`Error al cargar tareas: ${error.message}`, true);
         updateProgress();
     });
