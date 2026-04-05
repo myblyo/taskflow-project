@@ -199,6 +199,25 @@ function isPastDate(dateString) {
     return inputStart < todayStart;
 }
 
+/**
+ * Valida la fecha del formulario: 8 dígitos (DDMMAAAA), fecha de calendario real y no pasada.
+ * @param {string} dueDate - Valor del input (con guiones insertados automáticamente).
+ * @returns {string|null} Mensaje de error o null si es válida.
+ */
+function getDueDateValidationError(dueDate) {
+    const trimmed = typeof dueDate === 'string' ? dueDate.trim() : '';
+    if (!trimmed) return 'La fecha es obligatoria.';
+    const digits = trimmed.replace(/\D/g, '');
+    if (digits.length < 8) {
+        return 'Escribe 8 números (día, mes y año). Los guiones se ponen solos.';
+    }
+    if (!isValidDateInputValue(trimmed)) {
+        return 'Esa fecha no existe en el calendario. Revisa día y mes.';
+    }
+    if (isPastDate(trimmed)) return 'La fecha no puede ser anterior a hoy.';
+    return null;
+}
+
 // ── Task form & validation ──
 /**
  * Construye un objeto Task a partir de los valores actuales del formulario.
@@ -223,9 +242,8 @@ function validateTask(task) {
     if (task.description.length > MAX_DESCRIPTION_LENGTH) return `La descripción no puede superar ${MAX_DESCRIPTION_LENGTH} caracteres.`;
     if (!TASK_CATEGORIES.includes(task.category)) return 'Selecciona una categoría válida.';
     if (!TASK_PRIORITIES.includes(task.priority)) return 'Selecciona una prioridad válida.';
-    if (!task.dueDate) return 'La fecha es obligatoria.';
-    if (!isValidDateInputValue(task.dueDate)) return 'La fecha no tiene un formato válido.';
-    if (isPastDate(task.dueDate)) return 'La fecha no puede ser anterior a hoy.';
+    const dateErr = getDueDateValidationError(task.dueDate);
+    if (dateErr) return dateErr;
     return null;
 }
 
@@ -360,7 +378,7 @@ function openEditModal(task, card) {
         </div>
         <div class="row">
             <input type="text" id="edit-task-desc" class="flex-1" placeholder="Descripción (opcional)" value="${escapeAttr(task.description || '')}" maxlength="${MAX_DESCRIPTION_LENGTH}">
-            <input type="text" id="edit-task-date" placeholder="DDMMAAAA (solo números)" value="${escapeAttr(task.dueDate)}">
+            <input type="text" id="edit-task-date" placeholder="DDMMAAAA (solo números)" maxlength="10" inputmode="numeric" value="${escapeAttr(task.dueDate)}">
         </div>
         <div class="modal-actions">
             <button type="button" class="btn-secondary modal-cancel">Cancelar</button>
@@ -645,12 +663,22 @@ function initFilters() {
 }
 
 /**
- * Hace que un input de fecha solo requiera escribir números; formatea automáticamente a dd-mm-yyyy.
+ * Hace que un input de fecha solo acepte dígitos al escribir; inserta guiones como dd-mm-aaaa.
  * @param {HTMLInputElement} inputEl - Input con id task-date o edit-task-date.
  * @returns {void}
  */
 function bindDateInputFormat(inputEl) {
     if (!inputEl) return;
+    inputEl.setAttribute('inputmode', 'numeric');
+    inputEl.setAttribute('maxlength', '10');
+    inputEl.addEventListener('keydown', (e) => {
+        if (e.ctrlKey || e.metaKey || e.altKey) return;
+        const allowedNav = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'];
+        if (allowedNav.includes(e.key)) return;
+        if (e.key.length === 1 && !/\d/.test(e.key)) {
+            e.preventDefault();
+        }
+    });
     inputEl.addEventListener('input', () => {
         inputEl.value = formatDateInputFromDigits(inputEl.value);
     });
