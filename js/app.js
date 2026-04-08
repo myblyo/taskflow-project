@@ -255,15 +255,26 @@ function buildTaskFromForm() {
 }
 
 function validateTask(task) {
-    if (typeof task.title !== 'string' || task.title.length === 0) return 'El título es obligatorio.';
-    if (task.title.length > MAX_TITLE_LENGTH) return `El título no puede superar ${MAX_TITLE_LENGTH} caracteres.`;
-    if (typeof task.description !== 'string') return 'La descripción no es válida.';
-    if (task.description.length > MAX_DESCRIPTION_LENGTH) return `La descripción no puede superar ${MAX_DESCRIPTION_LENGTH} caracteres.`;
-    if (!TASK_CATEGORIES.includes(task.category)) return 'Selecciona una categoría válida.';
-    if (!TASK_PRIORITIES.includes(task.priority)) return 'Selecciona una prioridad válida.';
+    const errors = [];
+    if (typeof task.title !== 'string' || task.title.length === 0) {
+        errors.push('El título es obligatorio.');
+    } else if (task.title.length > MAX_TITLE_LENGTH) {
+        errors.push(`El título no puede superar ${MAX_TITLE_LENGTH} caracteres.`);
+    }
+    if (typeof task.description !== 'string') {
+        errors.push('La descripción no es válida.');
+    } else if (task.description.length > MAX_DESCRIPTION_LENGTH) {
+        errors.push(`La descripción no puede superar ${MAX_DESCRIPTION_LENGTH} caracteres.`);
+    }
+    if (!TASK_CATEGORIES.includes(task.category)) {
+        errors.push('Selecciona una categoría válida.');
+    }
+    if (!TASK_PRIORITIES.includes(task.priority)) {
+        errors.push('Selecciona una prioridad válida.');
+    }
     const dateErr = getDueDateValidationError(task.dueDate);
-    if (dateErr) return dateErr;
-    return null;
+    if (dateErr) errors.push(dateErr);
+    return errors.length ? errors.join(' ') : null;
 }
 
 /**
