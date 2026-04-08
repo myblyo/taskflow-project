@@ -1,4 +1,4 @@
-const { TASK_CATEGORIES, TASK_PRIORITIES } = require('../constants/tasks');
+const { TASK_CATEGORIES, TASK_PRIORITIES, TASK_STATUSES } = require('../constants/tasks');
 
 function parseUserDate(dateString) {
     const match = /^(\d{2})-(\d{2})-(\d{4})$/.exec(String(dateString).trim());
@@ -60,7 +60,7 @@ function dueDateIssue(dueDate) {
  */
 function collectCreateTaskIssues(body) {
     const issues = [];
-    const { title, category, priority, dueDate, completed } = body || {};
+    const { title, category, priority, dueDate, completed, status } = body || {};
 
     if (title === undefined || title === null) {
         issues.push({
@@ -131,6 +131,25 @@ function collectCreateTaskIssues(body) {
             field: 'completed',
             message: 'El campo completed debe ser true o false.'
         });
+    }
+
+    if (status !== undefined && status !== null) {
+        if (typeof status !== 'string') {
+            issues.push({
+                field: 'status',
+                message: 'El campo status debe ser texto.'
+            });
+        } else if (!status.trim()) {
+            issues.push({
+                field: 'status',
+                message: 'Si envías status, no puede estar vacío.'
+            });
+        } else if (!TASK_STATUSES.includes(status.trim())) {
+            issues.push({
+                field: 'status',
+                message: `Estado no válido. Valores permitidos: ${TASK_STATUSES.join(', ')}.`
+            });
+        }
     }
 
     return issues;

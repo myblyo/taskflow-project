@@ -10,7 +10,7 @@ function obtenerTodas() {
 
 /**
  * Crea una nueva tarea y la agrega al array en memoria.
- * @param {{ title: string, description?: string, completed?: boolean, category: string, priority: string, dueDate: string }} data
+ * @param {{ title: string, description?: string, completed?: boolean, category: string, priority: string, dueDate: string, status?: string }} data
  * @returns {Object} La tarea creada.
  */
 function crearTarea(data) {
