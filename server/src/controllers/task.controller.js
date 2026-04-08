@@ -1,18 +1,20 @@
 const taskService = require('../services/task.services');
+const { collectCreateTaskIssues } = require('../validation/createTaskBody');
+
+const POST_BODY_HINT =
+    'En Postman: Body → raw → JSON. Obligatorios: title, category, priority, dueDate (dd-mm-aaaa). ' +
+    'Ejemplo: { "title": "Comprar leche", "description": "", "category": "Personal", "priority": "Medio", "dueDate": "15-04-2026" }';
 
 const crearTarea = async (req, res, next) => {
     try {
-        const { title, description, completed, category, priority, dueDate } = req.body;
+        const { title, description, completed, category, priority, dueDate } = req.body || {};
 
-        if (typeof title !== 'string' || !title.trim()) {
+        const issues = collectCreateTaskIssues(req.body);
+        if (issues.length > 0) {
             return res.status(400).json({
-                error: 'El título es obligatorio.'
-            });
-        }
-
-        if (completed !== undefined && typeof completed !== 'boolean') {
-            return res.status(400).json({
-                error: 'Completed must be a boolean value.'
+                error: issues.map((i) => i.message).join(' '),
+                details: issues,
+                hint: POST_BODY_HINT
             });
         }
 
@@ -20,9 +22,9 @@ const crearTarea = async (req, res, next) => {
             title: title.trim(),
             description: typeof description === 'string' ? description : '',
             completed: completed ?? false,
-            category,
-            priority,
-            dueDate
+            category: category.trim(),
+            priority: priority.trim(),
+            dueDate: dueDate.trim()
         });
         res.status(201).json(newTask);
     } catch (error) {
