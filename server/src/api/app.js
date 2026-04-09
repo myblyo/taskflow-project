@@ -11,7 +11,7 @@
  * - Colores y aspecto de la UI: Componentes/*.css (card.css, maincnt.css, sidebar.css, etc.).
  * - Estructura HTML: index.html (clases e ids deben coincidir con los usados en este archivo).
  */
-import { createTask, deleteTask, fetchTasks, updateTask } from './api/client.js';
+import { createTask, deleteTask, fetchTasks, updateTask } from '../../../js/api/client.js';
 
 /**
  * @typedef {Object} Task
