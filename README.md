@@ -4,6 +4,36 @@ Aplicación web de lista de tareas con filtros por categoría, prioridad y estad
 
 ---
 
+## Cómo desplegar
+
+### 1) Ejecutar en local
+
+1. Instala dependencias del backend:
+   ```bash
+   cd server
+   npm install
+   ```
+2. Inicia la API:
+   ```bash
+   npm run dev
+   ```
+   La API queda en `http://localhost:3000/api/v1/tasks`.
+3. En otra terminal, vuelve a la raíz y abre `index.html` con Live Server (o cualquier servidor estático).
+4. Verifica que el front cargue tareas sin errores de red.
+
+### 2) Desplegar en Vercel (frontend + API)
+
+Este proyecto ya trae `vercel.json`, así que puedes desplegar front y backend en el mismo dominio:
+
+1. Sube el repositorio a GitHub.
+2. En Vercel, crea **New Project** y conecta el repo.
+3. Usa preset **Other** y deja el proyecto sin build command adicional.
+4. Pulsa **Deploy**.
+
+En producción, el cliente usa automáticamente `"/api/v1/tasks"` en el mismo origen, por lo que no necesitas cambiar la URL de la API.
+
+---
+
 ## Estructura del proyecto
 
 | Archivo / carpeta        | Descripción |
@@ -91,108 +121,32 @@ Cada tarea tiene: `id`, `title`, `description`, `category`, `priority`, `dueDate
 
 ---
 
-## Arquitectura, carpetas y API
+## Tecnologias utilizadas
 
-Marca cada ítem cuando lo hayas revisado o completado en el proyecto.
+### Frontend
 
-- [ ] **Arquitectura por capas**
+- HTML5
+- CSS3 (modular en `Componentes/*.css`)
+- JavaScript (ES Modules)
+- Tailwind CSS (via CDN para utilidades puntuales)
 
-  **Frontend (estático):** capa de presentación (`index.html` + `Componentes/*.css`) y capa de aplicación en el navegador (`js/app.js`: validación, DOM, estado en memoria). Las llamadas HTTP están aisladas en **`js/api/client.js`** (cliente de la API).
+### Backend
 
-  **Backend (`server/`):** patrón en capas típico de Express:
-  - **Rutas** (`src/routes/`) — definen método, path y delegan al controlador.
-  - **Controladores** (`src/controllers/`) — leen `req`, validan entrada básica, llaman al servicio y envían `res.json` / códigos HTTP.
-  - **Servicios** (`src/services/`) — lógica de negocio y acceso a datos (aquí un array en memoria).
-  - **Middlewares** (`src/middlewares/`) — p. ej. registro de peticiones.
-  - **Config** (`src/config/`) — variables de entorno (puerto).
-  - **`src/index.js`** — arranque de Express, CORS, JSON, prefijo `/api/v1/tasks`, middleware global de errores.
+- Node.js
+- Express
+- CORS
+- Dotenv
 
-  - [ ] **Estructura de carpetas**
+### Herramientas y despliegue
 
-    | Ruta | Rol |
-    |------|-----|
-    | `index.html` | Entrada del front |
-    | `js/app.js` | Lógica de UI y estado |
-    | `js/api/client.js` | `fetch` hacia la API |
-    | `Componentes/*.css` | Estilos modulares |
-    | `server/src/index.js` | Servidor Express |
-    | `server/src/routes/task.routes.js` | Rutas REST de tareas |
-    | `server/src/controllers/task.controller.js` | Manejo HTTP por recurso |
-    | `server/src/services/task.services.js` | Persistencia en memoria |
-    | `server/src/middlewares/logger.js` | Logging |
-    | `server/src/config/env.js` | `PORT` (por defecto `3000`) |
+- Nodemon (desarrollo backend)
+- Vercel (hosting frontend + serverless API con `vercel.json`)
+- Git y GitHub (control de versiones)
 
-  - [ ] **Endpoints API**
+---
 
-    Base URL (local): `http://localhost:3000/api/v1/tasks`
+## Documentacion del backend
 
-    | Método | Ruta | Descripción |
-    |--------|------|-------------|
-    | `GET` | `/api/v1/tasks` | Lista todas las tareas |
-    | `POST` | `/api/v1/tasks` | Crea una tarea |
-    | `PATCH` | `/api/v1/tasks/:id` | Actualiza campos parciales |
-    | `DELETE` | `/api/v1/tasks/:id` | Elimina por `id` |
+La documentacion especifica del backend, arquitectura y endpoints ahora esta en:
 
-    Cabeceras habituales en escritura: `Content-Type: application/json`. CORS habilitado para orígenes que consuman el API desde el navegador.
-
-  - [ ] **Ejemplos request / response**
-
-    **GET** `http://localhost:3000/api/v1/tasks`  
-    **Response** `200` — cuerpo: array JSON (puede ser `[]`).
-
-    ```json
-    [
-      {
-        "id": "1775402688432",
-        "title": "Comprar leche",
-        "description": "",
-        "completed": false,
-        "status": "Pendiente",
-        "category": "Personal",
-        "priority": "Medio",
-        "dueDate": "15-04-2026",
-        "creadaEn": "2026-04-05T15:24:48.432Z"
-      }
-    ]
-    ```
-
-    **POST** `http://localhost:3000/api/v1/tasks`  
-    **Body** (ejemplo):
-
-    ```json
-    {
-      "title": "Nueva tarea",
-      "description": "opcional",
-      "completed": false,
-      "category": "Trabajo",
-      "priority": "Alto",
-      "dueDate": "20-04-2026"
-    }
-    ```
-
-    **Response** `201` — objeto de la tarea creada (incluye `id`, `creadaEn`, etc.).  
-    **Response** `400` — `{ "error": "El título es obligatorio." }` (u otro mensaje de validación).
-
-    **PATCH** `http://localhost:3000/api/v1/tasks/1775402688432`  
-    **Body** (solo campos a cambiar):
-
-    ```json
-    {
-      "status": "Completada",
-      "completed": true
-    }
-    ```
-
-    **Response** `200` — tarea actualizada.  
-    **Response** `404` — `{ "error": "Task not found." }`
-
-    **DELETE** `http://localhost:3000/api/v1/tasks/1775402688432`  
-    **Response** `200` — `{ "message": "tarea eliminada" }`  
-    **Response** `404` — `{ "error": "Task not found." }`
-
-    **Probar desde terminal (curl):**
-
-    ```bash
-    curl -s http://localhost:3000/api/v1/tasks
-    curl -s -X POST http://localhost:3000/api/v1/tasks -H "Content-Type: application/json" -d "{\"title\":\"Demo\",\"description\":\"\"}"
-    ```
+- `docs/server/README.md`
