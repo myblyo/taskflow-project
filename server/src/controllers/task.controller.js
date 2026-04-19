@@ -2,12 +2,12 @@ const taskService = require('../services/task.services');
 const { collectCreateTaskIssues } = require('../validation/createTaskBody');
 
 const POST_BODY_HINT =
-    'En Postman: Body → raw → JSON. Obligatorios: title, category, priority y dueDate (formato dd-mm-aaaa). ' +
-    'Ejemplo: { "title": "Comprar leche", "category": "Personal", "priority": "Medio", "dueDate": "15-04-2026" }';
+    'En Postman: Body → raw → JSON. Obligatorios: title, category, priority, dueDate (dd-mm-aaaa). ' +
+    'Ejemplo: { "title": "Comprar leche", "description": "", "category": "Personal", "priority": "Medio", "dueDate": "15-04-2026" }';
 
 const crearTarea = async (req, res, next) => {
     try {
-        const { title, description, completed, category, priority, dueDate, status } = req.body || {};
+        const { title, description, completed, category, priority, dueDate } = req.body || {};
 
         const issues = collectCreateTaskIssues(req.body);
         if (issues.length > 0) {
@@ -18,21 +18,18 @@ const crearTarea = async (req, res, next) => {
             });
         }
 
-        const payload = {
+        const newTask = await taskService.crearTarea({
             title: title.trim(),
             description: typeof description === 'string' ? description : '',
             completed: completed ?? false,
             category: category.trim(),
             priority: priority.trim(),
             dueDate: dueDate.trim()
-        };
-        if (typeof status === 'string' && status.trim()) {
-            payload.status = status.trim();
-        }
-        const newTask = await taskService.crearTarea(payload);
+        });
         res.status(201).json(newTask);
     } catch (error) {
         next(error);
+        console.error('Error en crearTarea:', error);
     }
 };
 

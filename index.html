@@ -22,7 +22,7 @@
 
 <main>
     <!-- Sidebar -->
-    <aside class="glass">
+    <aside class="glass" id="mobileSidebar" aria-hidden="true">
         <button type="button" id="resetBtn">🗑 filtros</button>
 
         <details open>
@@ -47,10 +47,23 @@
             <label class="checkbox-label"><input type="checkbox" class="checkbox f-sta" value="Completada"> Completada</label>
         </details>
     </aside>
+    <button
+        type="button"
+        id="mobileMenuOverlay"
+        class="mobile-menu-overlay"
+        aria-label="Cerrar menú de filtros"
+        aria-hidden="true"></button>
 
     <!-- Content -->
     <div class="content">
         <div class="content-header">
+            <button
+                type="button"
+                id="mobileMenuToggle"
+                class="mobile-menu-btn"
+                aria-controls="mobileSidebar"
+                aria-expanded="false"
+                aria-label="Abrir menú de filtros">☰ Filtros</button>
             <h1>Lista de tareas</h1>
             <input class="theme-checkbox" type="checkbox" id="darkToggle" />
         </div>

@@ -29,6 +29,34 @@
     flex-wrap: wrap;
 }
 
+.mobile-menu-btn {
+    display: none;
+    font-family: inherit;
+    font-size: 0.78rem;
+    font-weight: 700;
+    height: 36px;
+    padding: 0 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.45);
+    background: rgba(255,255,255,0.22);
+    backdrop-filter: blur(8px);
+    color: rgba(30,35,50,0.78);
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    white-space: nowrap;
+}
+.mobile-menu-btn:hover {
+    background: rgba(255,255,255,0.5);
+    color: #111;
+}
+html.dark .mobile-menu-btn {
+    color: rgba(220,225,255,0.78);
+}
+html.dark .mobile-menu-btn:hover {
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+}
+
 .header-actions {
     display: flex;
     align-items: center;
